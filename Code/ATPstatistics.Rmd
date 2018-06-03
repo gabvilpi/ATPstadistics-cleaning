@@ -103,7 +103,7 @@ summary(ATPstatistics)
 ```
 Existen observaciones con datos a cero, lo que denota que dichas observaciones no se han recogido datos para el partido. Estos datos deben ser eliminados.
 ```{r chunck6}
-
+ATPstatistics<- ATPstatistics[which(ATPstatistics$`Serve Rating 1`!=0 & ATPstatistics$`Serve Rating 2`!=0 & ATPstatistics$`Return rating 1` !=0 & ATPstatistics$`Return rating 2` !=0),]
 ```
 ### Identificaci?n y tratamiento de valores extremos.
 ## An?lisis de los datos.
@@ -112,9 +112,4 @@ Existen observaciones con datos a cero, lo que denota que dichas observaciones n
 ### Aplicaci?n de pruebas estad?sticas para comparar los grupos de datos. En funci?n de los datos y el objetivo del estudio, aplicar pruebas de contrastede hip?tesis, correlaciones, regresiones, etc.
 ## Representaci?n de los resultados a partir de tablas y gr?ficas.
 ##Resoluci?n del problema. A partir de los resultados obtenidos, ?cu?les son las conclusiones? ?Los resultados permiten responder al problema?
-## C?digo: Hay que adjuntar el c?digo, preferiblemente en R, con el que se ha realizado la limpieza, an?lisis y representaci?n de los datos. Si lo prefer?s,
-tambi?n pod?is trabajar en Python. 
-
-
-Hemos obtenido un $R^2$ con valor 0.7958, por lo que nuestro modelo est? cerca de ajustarse a la totalidad, ya que el valor m?ximo de $R^2$ es 1.
-
+## C?digo: Hay que adjuntar el c?digo, preferiblemente en R, con el que se ha realizado la limpieza, an?lisis y representaci?n de los datos. Si lo prefer?s, tambi?n pod?is trabajar en Python. 
