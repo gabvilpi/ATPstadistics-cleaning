@@ -101,7 +101,7 @@ ATPstatistics<-ATPstatistics[-c(25:26)]
 ```{r chunck5}
 summary(ATPstatistics)
 ```
-Existen observaciones con datos a cero, lo que denota que dichas observaciones no se han recogido datos para el partido. Estos datos deben ser eliminados.
+Existen observaciones con datos a cero, lo que denota que dichas observaciones no se han recogido datos para el partido. Los eliminamos a continuación.
 ```{r chunck6}
 ATPstatistics<- ATPstatistics[which(ATPstatistics$`Serve Rating 1`!=0 & ATPstatistics$`Serve Rating 2`!=0 & ATPstatistics$`Return rating 1` !=0 & ATPstatistics$`Return rating 2` !=0),]
 ```
