@@ -11,44 +11,24 @@ output:
     toc_depth: 4
 ---
 
-#PEC3 - Modelaci?n predictiva
+#PEC3 - Modelación predictiva
 
-## Descripci?n del dataset. ?Por qu? es importante y qu? pregunta/problema pretende responder?
-##Integraci?n y selecci?n de los datos de inter?s a analizar.
+## Descripción del dataset. ?Por qu? es importante y qu? pregunta/problema pretende responder?
+##Integración y selecci?n de los datos de inter?s a analizar.
 Se realiza la carga de los datos. 
 ```{r chunck1}
 library(readxl)
 ATPstatistics <- read_excel("../Data/ATPstatistics.xlsx")
 head(ATPstatistics)
 ```
-Una vez que hemos realizado la carga correcta de los datos. A continuaci?n, veremos el tipo de datos seleccionado por R para cada campo.
+Una vez que hemos realizado la carga correcta de los datos. A continuación, veremos el tipo de datos seleccionado por R para cada campo.
 ```{r chunck2}
 str(ATPstatistics)
 ```
-Player a factor
-Serve Rating a entero
-Aces a entero
-DF a entero
-% primer servicio a real
-% segundo servicio a real
-% primer servicio ganado a real
-% segundo servicio ganado a real
-% BP salvado a real
-N?mero de juegos servidos a entero
-Ratio resto a entero
-% primer servicio restado ganado a real
-% segundo servicio restado ganado a real
-% BP convertido a real
-N?mero de juegos al resto a entero
-% puntos ganados con el servicio a real
-% puntos ganados con el resto a real
-% total de puntos ganados a real
-Ganado a factor
-Torneo a factor
-Fecha_inicio a fecha
-Fecha_fin a fecha
-Surface a factor
+Como podemos observar, los tipos de datos que R ha seleccionado a cada variable no es el mejor, por lo quie procedemos a transformarlos a un tipo de datos más adecuado. 
+
 ```{r chunck3}
+ATPstatistics$id_partido<-as.integer(ATPstatistics$id_partido)
 ATPstatistics$`Player 1`<-as.factor(ATPstatistics$`Player 1`)
 ATPstatistics$`Player 2`<-as.factor(ATPstatistics$`Player 2`)
 ATPstatistics$`Serve Rating 1` <- as.integer(ATPstatistics$`Serve Rating 1`)
@@ -90,11 +70,34 @@ ATPstatistics$`% Break point converted 1`<- as.double(ATPstatistics$`% Break poi
 ATPstatistics$`% Break point converted 2`<- as.double(ATPstatistics$`% Break point converted 2`)
 str(ATPstatistics)
 ```
-Quitaremos el n?mero total de juegos al servicio y al resto, ya que a priori, no nos aporta informaci?n relativa al juego de cada jugador. 
+Quitaremos el número total de juegos al servicio y al resto, ya que a priori, no nos aporta información relativa al juego de cada jugador. 
 ```{r chunck4}
-ATPstatistics<-ATPstatistics[-c(17:18)]
-ATPstatistics<-ATPstatistics[-c(25:26)]
+ATPstatistics<-ATPstatistics[-c(18:19)]
+ATPstatistics<-ATPstatistics[-c(26:27)]
 ```
+Los datos no están del todo preparados, ya que tenemos las estadisticas reales de los partidos. Necesitamos obtener las estimaciones de los partidos, para ello, realizaremos la media y varianza de las estadisticas de los últimos partidos de cada jugador.
+```{r chunck7}
+require(data.table)
+partidos = 5
+for(i in 1:nrow(ATPstatistics)){
+  jugador1<-as.character(ATPstatistics$`Player 1`[i])
+  jugador2<-as.character(ATPstatistics$`Player 2`[i])
+  variablesj1 <- c(1,seq(4,31,by = 2))
+  variablesj2 <- c(1,seq(5,32,by = 2))
+  otras_variables <- seq(33,ncol(ATPstatistics),by = 1)
+  estadisticas_jugador1_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador1),variablesj1]
+  estadisticas_jugador1_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador1),variablesj2]
+  estadisticas_jugador2_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador2),variablesj1]
+  estadisticas_jugador2_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador2),variablesj2]
+  estadisticas_jugador1 <- rbind(as.matrix(estadisticas_jugador1_1),as.matrix(estadisticas_jugador1_2))
+  estadisticas_jugador2 <- rbind(as.matrix(estadisticas_jugador2_1),as.matrix(estadisticas_jugador2_2))
+  estadisticas_jugador1<-data.table(estadisticas_jugador1,key="id_partido")
+  estadisticas_jugador2<-data.table(estadisticas_jugador2,key="id_partido")
+  estadisticas_jugador1 <- estadisticas_jugador1[1:partidos,]
+  estadisticas_jugador2 <- estadisticas_jugador2[1:partidos,]
+}
+```
+
 ##Limpieza de los datos.
 
 ###?Los datos contienen ceros o elementos vac?os? ?C?mo gestionar?as cada uno de estos casos?
