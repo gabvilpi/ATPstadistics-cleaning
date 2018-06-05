@@ -63,11 +63,11 @@ ATPstatistics$`% Return point won 2` <- as.double(ATPstatistics$`% Return point 
 ATPstatistics$`% Total point won 1` <- as.double(ATPstatistics$`% Total point won 1`)/100
 ATPstatistics$`% Total point won 2` <- as.double(ATPstatistics$`% Total point won 2`)/100
 ATPstatistics$`% 1st serve return won 1` <- as.double(ATPstatistics$`% 1st serve return won 1`)/100
-ATPstatistics$`% 1st serve return won 2` <- as.double(ATPstatistics$`% 1st serve return won 2` )
-ATPstatistics$`% 2nd serve return won 1`<- as.double(ATPstatistics$`% 2nd serve return won 1`)
-ATPstatistics$`% 2nd serve return won 2`<- as.double(ATPstatistics$`% 2nd serve return won 2`)
-ATPstatistics$`% Break point converted 1`<- as.double(ATPstatistics$`% Break point converted 1`)
-ATPstatistics$`% Break point converted 2`<- as.double(ATPstatistics$`% Break point converted 2`)
+ATPstatistics$`% 1st serve return won 2` <- as.double(ATPstatistics$`% 1st serve return won 2` )/100
+ATPstatistics$`% 2nd serve return won 1`<- as.double(ATPstatistics$`% 2nd serve return won 1`)/100
+ATPstatistics$`% 2nd serve return won 2`<- as.double(ATPstatistics$`% 2nd serve return won 2`)/100
+ATPstatistics$`% Break point converted 1`<- as.double(ATPstatistics$`% Break point converted 1`)/100
+ATPstatistics$`% Break point converted 2`<- as.double(ATPstatistics$`% Break point converted 2`)/100
 str(ATPstatistics)
 ```
 Quitaremos el número total de juegos al servicio y al resto, ya que a priori, no nos aporta información relativa al juego de cada jugador. 
@@ -79,22 +79,31 @@ Los datos no están del todo preparados, ya que tenemos las estadisticas reales 
 ```{r chunck7}
 require(data.table)
 partidos = 5
+dataset <- matrix(nrow=0,ncol=63)
+variablesj1 <- c(1,seq(4,31,by = 2))
+variablesj2 <- c(1,seq(5,32,by = 2))
+otras_variables <- seq(32,ncol(ATPstatistics),by = 1)
+jugador1<-as.character(ATPstatistics$`Player 1`)
+jugador2<-as.character(ATPstatistics$`Player 2`)
 for(i in 1:nrow(ATPstatistics)){
-  jugador1<-as.character(ATPstatistics$`Player 1`[i])
-  jugador2<-as.character(ATPstatistics$`Player 2`[i])
-  variablesj1 <- c(1,seq(4,31,by = 2))
-  variablesj2 <- c(1,seq(5,32,by = 2))
-  otras_variables <- seq(33,ncol(ATPstatistics),by = 1)
-  estadisticas_jugador1_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador1),variablesj1]
-  estadisticas_jugador1_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador1),variablesj2]
-  estadisticas_jugador2_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador2),variablesj1]
-  estadisticas_jugador2_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador2),variablesj2]
+  estadisticas_jugador1_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador1[i]),variablesj1]
+  estadisticas_jugador1_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador1[i]),variablesj2]
+  estadisticas_jugador2_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador2[i]),variablesj1]
+  estadisticas_jugador2_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador2[i]),variablesj2] 
   estadisticas_jugador1 <- rbind(as.matrix(estadisticas_jugador1_1),as.matrix(estadisticas_jugador1_2))
   estadisticas_jugador2 <- rbind(as.matrix(estadisticas_jugador2_1),as.matrix(estadisticas_jugador2_2))
   estadisticas_jugador1<-data.table(estadisticas_jugador1,key="id_partido")
   estadisticas_jugador2<-data.table(estadisticas_jugador2,key="id_partido")
-  estadisticas_jugador1 <- estadisticas_jugador1[1:partidos,]
-  estadisticas_jugador2 <- estadisticas_jugador2[1:partidos,]
+estadisticas_jugador1 <- estadisticas_jugador1[(which(estadisticas_jugador2$id_partido >ATPstatistics$id_partido[i])),2:ncol(estadisticas_jugador1)]
+  estadisticas_jugador2 <- estadisticas_jugador2[(which(estadisticas_jugador2$id_partido > ATPstatistics$id_partido[i])),2:ncol(estadisticas_jugador2)]
+  if(nrow(estadisticas_jugador1)>= partidos & nrow(estadisticas_jugador2)>= partidos){
+    estadisticas_jugador1 <- estadisticas_jugador1[1:partidos,]
+    estadisticas_jugador2 <- estadisticas_jugador2[1:partidos,]
+    estadisticas_jugador1 <- cbind(t(colMeans(estadisticas_jugador1)),t(apply(estadisticas_jugador1,2,sd)))
+    estadisticas_jugador2 <- cbind(t(colMeans(estadisticas_jugador2)),t(apply(estadisticas_jugador2,2,sd)))
+    resultado <- cbind(ATPstatistics$id_partido[i],jugador1[i],jugador2[i],estadisticas_jugador1,estadisticas_jugador2,ATPstatistics[i,otras_variables])
+    dataset <- rbind(as.matrix(dataset),as.matrix(resultado))
+  }
 }
 ```
 
