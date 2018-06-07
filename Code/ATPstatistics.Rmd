@@ -70,46 +70,10 @@ ATPstatistics$`% Break point converted 1`<- as.double(ATPstatistics$`% Break poi
 ATPstatistics$`% Break point converted 2`<- as.double(ATPstatistics$`% Break point converted 2`)/100
 str(ATPstatistics)
 ```
-Quitaremos el número total de juegos al servicio y al resto, ya que a priori, no nos aporta información relativa al juego de cada jugador. 
-```{r chunck4}
-ATPstatistics<-ATPstatistics[-c(18:19)]
-ATPstatistics<-ATPstatistics[-c(26:27)]
-```
-Los datos no están del todo preparados, ya que tenemos las estadisticas reales de los partidos. Necesitamos obtener las estimaciones de los partidos, para ello, realizaremos la media y varianza de las estadisticas de los últimos partidos de cada jugador.
-```{r chunck7}
-require(data.table)
-partidos = 5
-dataset <- matrix(nrow=0,ncol=63)
-variablesj1 <- c(1,seq(4,31,by = 2))
-variablesj2 <- c(1,seq(5,32,by = 2))
-otras_variables <- seq(32,ncol(ATPstatistics),by = 1)
-jugador1<-as.character(ATPstatistics$`Player 1`)
-jugador2<-as.character(ATPstatistics$`Player 2`)
-for(i in 1:nrow(ATPstatistics)){
-  estadisticas_jugador1_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador1[i]),variablesj1]
-  estadisticas_jugador1_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador1[i]),variablesj2]
-  estadisticas_jugador2_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador2[i]),variablesj1]
-  estadisticas_jugador2_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador2[i]),variablesj2] 
-  estadisticas_jugador1 <- rbind(as.matrix(estadisticas_jugador1_1),as.matrix(estadisticas_jugador1_2))
-  estadisticas_jugador2 <- rbind(as.matrix(estadisticas_jugador2_1),as.matrix(estadisticas_jugador2_2))
-  estadisticas_jugador1<-data.table(estadisticas_jugador1,key="id_partido")
-  estadisticas_jugador2<-data.table(estadisticas_jugador2,key="id_partido")
-estadisticas_jugador1 <- estadisticas_jugador1[(which(estadisticas_jugador2$id_partido >ATPstatistics$id_partido[i])),2:ncol(estadisticas_jugador1)]
-  estadisticas_jugador2 <- estadisticas_jugador2[(which(estadisticas_jugador2$id_partido > ATPstatistics$id_partido[i])),2:ncol(estadisticas_jugador2)]
-  if(nrow(estadisticas_jugador1)>= partidos & nrow(estadisticas_jugador2)>= partidos){
-    estadisticas_jugador1 <- estadisticas_jugador1[1:partidos,]
-    estadisticas_jugador2 <- estadisticas_jugador2[1:partidos,]
-    estadisticas_jugador1 <- cbind(t(colMeans(estadisticas_jugador1)),t(apply(estadisticas_jugador1,2,sd)))
-    estadisticas_jugador2 <- cbind(t(colMeans(estadisticas_jugador2)),t(apply(estadisticas_jugador2,2,sd)))
-    resultado <- cbind(ATPstatistics$id_partido[i],jugador1[i],jugador2[i],estadisticas_jugador1,estadisticas_jugador2,ATPstatistics[i,otras_variables])
-    dataset <- rbind(as.matrix(dataset),as.matrix(resultado))
-  }
-}
-```
 
 ##Limpieza de los datos.
 
-###?Los datos contienen ceros o elementos vac?os? ?C?mo gestionar?as cada uno de estos casos?
+###¿Los datos contienen ceros o elementos vacíos? ¿Cómo gestionarías cada uno de estos casos?
 ```{r chunck5}
 summary(ATPstatistics)
 ```
@@ -117,11 +81,121 @@ Existen observaciones con datos a cero, lo que denota que dichas observaciones n
 ```{r chunck6}
 ATPstatistics<- ATPstatistics[which(ATPstatistics$`Serve Rating 1`!=0 & ATPstatistics$`Serve Rating 2`!=0 & ATPstatistics$`Return rating 1` !=0 & ATPstatistics$`Return rating 2` !=0),]
 ```
-### Identificaci?n y tratamiento de valores extremos.
-## An?lisis de los datos.
-###Selecci?n de los grupos de datos que se quieren analizar/comparar(planificaci?n de los an?lisis a aplicar).
-### Comprobaci?n de la normalidad y homogeneidad de la varianza.
-### Aplicaci?n de pruebas estad?sticas para comparar los grupos de datos. En funci?n de los datos y el objetivo del estudio, aplicar pruebas de contrastede hip?tesis, correlaciones, regresiones, etc.
-## Representaci?n de los resultados a partir de tablas y gr?ficas.
-##Resoluci?n del problema. A partir de los resultados obtenidos, ?cu?les son las conclusiones? ?Los resultados permiten responder al problema?
-## C?digo: Hay que adjuntar el c?digo, preferiblemente en R, con el que se ha realizado la limpieza, an?lisis y representaci?n de los datos. Si lo prefer?s, tambi?n pod?is trabajar en Python. 
+### Identificación y tratamiento de valores extremos.
+Para identificar los valores extrremos realizaremos unos diagramas de cajas. En el caso de tener valores fuera de la normalidad, se representarán con un circulo.
+```{r chunck8}
+boxplot(ATPstatistics$`Serve Rating 1`,notch=TRUE, main= ("Serve Rating player 1"))
+boxplot(ATPstatistics$`Serve Rating 2`,notch=TRUE, main= ("Serve Rating player 2"))
+boxplot(ATPstatistics$`Aces 1`,notch=TRUE, main= ("Aces player 1"))
+boxplot(ATPstatistics$`Aces 2`,notch=TRUE, main= ("Aces player 2"))
+boxplot(ATPstatistics$`Double Faults 1`,notch=TRUE, main= ("Double Faults player 1"))
+boxplot(ATPstatistics$`Double Faults 2`,notch=TRUE, main= ("Double Faults player 2"))
+boxplot(ATPstatistics$`Return rating 1`,notch=TRUE, main= ("Return rating player 1"))
+boxplot(ATPstatistics$`Return rating 2`,notch=TRUE, main= ("Return rating player 2"))
+boxplot(ATPstatistics$`% 1st Serve 1`,notch=TRUE, main= ("% 1st Serve player 1"))
+boxplot(ATPstatistics$`% 1st Serve 2`,notch=TRUE, main= ("% 1st Serve player 2"))
+boxplot(ATPstatistics$`% 1st serve won 1`,notch=TRUE, main= ("% 1st Serve Won player 1"))
+boxplot(ATPstatistics$`% 1st serve won 2`,notch=TRUE, main= ("% 1st Serve Won player 2"))
+boxplot(ATPstatistics$`% 2nd serve won 1`,notch=TRUE, main= ("% 2nd Serve Won player 1"))
+boxplot(ATPstatistics$`% 2nd serve won 2`,notch=TRUE, main= ("% 2nd Serve Won player 2"))
+boxplot(ATPstatistics$`% Break point saved 1`,notch=TRUE, main= ("% Break point saved player 1"))
+boxplot(ATPstatistics$`% Break point saved 2`,notch=TRUE, main= ("% Break poiint saved player 2"))
+boxplot(ATPstatistics$`% 1st serve return won 1`,notch=TRUE, main= ("% 1st Serve Return Won player 1"))
+boxplot(ATPstatistics$`% 1st serve return won 2`,notch=TRUE, main= ("% 1st Serve Return Won player 2"))
+boxplot(ATPstatistics$`% 2nd serve return won 1`,notch=TRUE, main= ("% 2nd Serve Return Won player 1"))
+boxplot(ATPstatistics$`% 2nd serve return won 2`,notch=TRUE, main= ("% 2nd Serve Return Won player 2"))
+boxplot(ATPstatistics$`% Served point won 1`,notch=TRUE, main= ("% Served Point Won player 1"))
+boxplot(ATPstatistics$`% Served point won 2`,notch=TRUE, main= ("% Served Point Won player 2"))
+boxplot(ATPstatistics$`% Return point won 1`,notch=TRUE, main= ("% Return Point Won player 1"))
+boxplot(ATPstatistics$`% Return point won 2`,notch=TRUE, main= ("% Return Point Won player 2"))
+boxplot(ATPstatistics$`% Total point won 1`,notch=TRUE, main= ("Total Point Won player 1"))
+boxplot(ATPstatistics$`% Total point won 2`,notch=TRUE, main= ("Total Point Won player 2"))
+```
+Existen bastantes valores extremos. Estos valores son normales, ya que por un lado, confiamos en la fuente de datos (ya que es una fuenta oficial) y por otro lado, es normal que haya jugadores que se salgan de lo normal, no hace falta irse muy lejos para saber que hay jugadores que tienen unas estadisticas que marcan una historia, ya sea Roger Federer o el español Rafael Nadal.
+## Análisis de los datos.
+###Selección de los grupos de datos que se quieren analizar/comparar(planificación de los análisis a aplicar).
+Quitaremos el número total de juegos al servicio y al resto, ya que a priori, no nos aporta información relativa al juego de cada jugador. 
+```{r chunck4}
+ATPstatistics<-ATPstatistics[-c(18:19)]
+ATPstatistics<-ATPstatistics[-c(26:27)]
+```
+### Comprobación de la normalidad y homogeneidad de la varianza.
+Realizamos un test de normalidad y homogeneidad a los datos 
+```{r chunck9}
+'
+#NO FUNCIONA
+library(nortest)
+atributos_no_normales = c()
+for(i in 4:(ncol(ATPstatistics)-5)){
+  atributos_no_normales = c(atributos_no_normales,colnames(ATPstatistics[ad.test(as.matrix(ATPstatistics[,i]))$p.value < 0.05]))
+}
+'
+
+#Añadir homogeneidad
+```
+
+### Aplicación de pruebas estadísticas para comparar los grupos de datos. En funci?n de los datos y el objetivo del estudio, aplicar pruebas de contrastede hipótesis, correlaciones, regresiones, etc.
+```{r chunck11}
+
+```
+
+## Representación de los resultados a partir de tablas y gráficas.
+```{r chunck12}
+
+```
+
+##Resolución del problema. A partir de los resultados obtenidos, ?cu?les son las conclusiones? ?Los resultados permiten responder al problema?
+Para poder responder a la pregunta que nos planteabamos al inicio, dado que los datos no están del todo preparados, ya que tenemos las estadisticas reales de los partidos. Necesitamos obtener las estimaciones de los partidos, para ello, realizaremos la media y varianza de las estadisticas de los últimos partidos de cada jugador.
+```{r chunck7}
+require(data.table)
+partidos = 5
+dataset <- matrix(nrow=0,ncol=63)
+variablesj1 <- c(1,seq(4,31,by = 2))
+variablesj2 <- c(1,seq(5,32,by = 2))
+otras_variables <- seq(33,ncol(ATPstatistics),by = 1)
+jugador1<-as.character(ATPstatistics$`Player 1`)
+jugador2<-as.character(ATPstatistics$`Player 2`)
+for(i in 1:nrow(ATPstatistics)){
+  resultado <- matrix(nrow=0,ncol=63)
+  estadisticas_jugador1_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador1[i]),variablesj1]
+  estadisticas_jugador1_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador1[i]),variablesj2]
+  estadisticas_jugador2_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador2[i]),variablesj1]
+  estadisticas_jugador2_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador2[i]),variablesj2] 
+  estadisticas_jugador1 <- rbind(as.matrix(estadisticas_jugador1_1),as.matrix(estadisticas_jugador1_2))
+  estadisticas_jugador2 <- rbind(as.matrix(estadisticas_jugador2_2),as.matrix(estadisticas_jugador2_1))
+  estadisticas_jugador1<-data.table(estadisticas_jugador1,key="id_partido")
+  estadisticas_jugador2<-data.table(estadisticas_jugador2,key="id_partido")
+  estadisticas_jugador1 <- estadisticas_jugador1[(which(estadisticas_jugador2$id_partido >ATPstatistics$id_partido[i])),2:ncol(estadisticas_jugador1)]
+  estadisticas_jugador2 <- estadisticas_jugador2[(which(estadisticas_jugador2$id_partido > ATPstatistics$id_partido[i])),2:ncol(estadisticas_jugador2)]
+  if(nrow(estadisticas_jugador1)>= partidos & nrow(estadisticas_jugador2)>= partidos){
+    estadisticas_jugador1 <- estadisticas_jugador1[1:partidos,]
+    estadisticas_jugador2 <- estadisticas_jugador2[1:partidos,]
+    estadisticas_jugador1 <- cbind(t(colMeans(estadisticas_jugador1)),t(apply(estadisticas_jugador1,2,sd)))
+    estadisticas_jugador2 <- cbind(t(colMeans(estadisticas_jugador2)),t(apply(estadisticas_jugador2,2,sd)))
+    if(i%%2 == 1){
+      if(ATPstatistics$Winner[i]==jugador1[i])
+        ganador = 1
+      else
+        ganador = 2
+      resultado <- cbind(ATPstatistics$id_partido[i],jugador1[i],jugador2[i],estadisticas_jugador1,estadisticas_jugador2,ganador,ATPstatistics[i,otras_variables])
+    }
+    else{
+      if(ATPstatistics$Winner[i]==jugador1[i])
+        ganador = 2
+      else
+        ganador = 1
+      resultado <- cbind(ATPstatistics$id_partido[i],jugador2[i],jugador1[i],estadisticas_jugador2,estadisticas_jugador1,ganador,ATPstatistics[i,otras_variables])
+    }
+    if(i == 1)
+      dataset<-resultado
+    else
+      dataset <- rbind(as.matrix(dataset),as.matrix(resultado))
+  }
+}
+#write.csv(dataset, "./Data/dataset.csv")
+```
+Una vez tenemos generado el dataset, procedemos a realizar un kfold de 10 y procedemos a entrenar los diferentes modelos.
+```{r chunck10}
+
+```
+Como podemos ver en en los resultados de los diferentes modelos obtenemos un acierto de X en test, por lo que afirmamos que con los datos que hemos obtenido podemos realizar predicciones de los partidos futuros. 
