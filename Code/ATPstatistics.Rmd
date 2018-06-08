@@ -37,12 +37,12 @@ ATPstatistics$`Aces 1`<- as.integer(ATPstatistics$`Aces 1`)
 ATPstatistics$`Aces 2`<- as.integer(ATPstatistics$`Aces 2`)
 ATPstatistics$`Double Faults 1` <- as.integer(ATPstatistics$`Double Faults 1`)
 ATPstatistics$`Double Faults 2` <- as.integer(ATPstatistics$`Double Faults 2`)
-ATPstatistics$`Served games played 1` <- as.integer(ATPstatistics$`Served games played 1`)
-ATPstatistics$`Served games played 2` <- as.integer(ATPstatistics$`Served games played 2`)
-ATPstatistics$`Return rating 1` <- as.integer(ATPstatistics$`Return rating 1`)
-ATPstatistics$`Return rating 2` <- as.integer(ATPstatistics$`Return rating 2`)
-ATPstatistics$`Return games played 1` <- as.integer(ATPstatistics$`Return games played 1`)
-ATPstatistics$`Return games played 2` <- as.integer(ATPstatistics$`Return games played 2`)
+ATPstatistics$`Served Games Played 1` <- as.integer(ATPstatistics$`Served Games Played 1`)
+ATPstatistics$`Served Games Played 2` <- as.integer(ATPstatistics$`Served Games Played 2`)
+ATPstatistics$`Return Rating 1` <- as.integer(ATPstatistics$`Return Rating 1`)
+ATPstatistics$`Return Rating 2` <- as.integer(ATPstatistics$`Return Rating 2`)
+ATPstatistics$`Return Games Played 1` <- as.integer(ATPstatistics$`Return Games Played 1`)
+ATPstatistics$`Return Games Played 2` <- as.integer(ATPstatistics$`Return Games Played 2`)
 ATPstatistics$Winner <- as.factor(ATPstatistics$Winner)
 ATPstatistics$Tournament <- as.factor(ATPstatistics$Tournament)
 ATPstatistics$`Started date` <- as.Date(as.character(ATPstatistics$`Started date`), "%d/%m/%Y")
@@ -50,24 +50,24 @@ ATPstatistics$`Ended date` <- as.Date(as.character(ATPstatistics$`Ended date`), 
 ATPstatistics$Surface <- as.factor(ATPstatistics$Surface)
 ATPstatistics$`% 1st Serve 1` <- as.double(ATPstatistics$`% 1st Serve 1`)/100
 ATPstatistics$`% 1st Serve 2` <- as.double(ATPstatistics$`% 1st Serve 2`)/100
-ATPstatistics$`% 1st serve won 1` <-as.double(ATPstatistics$`% 1st serve won 1`)/100
-ATPstatistics$`% 1st serve won 2` <-as.double(ATPstatistics$`% 1st serve won 2`)/100
-ATPstatistics$`% 2nd serve won 1` <-as.double(ATPstatistics$`% 2nd serve won 1`)/100
-ATPstatistics$`% 2nd serve won 2` <-as.double(ATPstatistics$`% 2nd serve won 2`)/100
-ATPstatistics$`% Break point saved 1` <- as.double(ATPstatistics$`% Break point saved 1`)/100
-ATPstatistics$`% Break point saved 2` <- as.double(ATPstatistics$`% Break point saved 2`)/100
-ATPstatistics$`% Served point won 1` <- as.double(ATPstatistics$`% Served point won 1`)/100
-ATPstatistics$`% Served point won 2` <- as.double(ATPstatistics$`% Served point won 2`)/100
-ATPstatistics$`% Return point won 1` <- as.double(ATPstatistics$`% Return point won 1`)/100
-ATPstatistics$`% Return point won 2` <- as.double(ATPstatistics$`% Return point won 2`)/100
-ATPstatistics$`% Total point won 1` <- as.double(ATPstatistics$`% Total point won 1`)/100
-ATPstatistics$`% Total point won 2` <- as.double(ATPstatistics$`% Total point won 2`)/100
-ATPstatistics$`% 1st serve return won 1` <- as.double(ATPstatistics$`% 1st serve return won 1`)/100
-ATPstatistics$`% 1st serve return won 2` <- as.double(ATPstatistics$`% 1st serve return won 2` )/100
-ATPstatistics$`% 2nd serve return won 1`<- as.double(ATPstatistics$`% 2nd serve return won 1`)/100
-ATPstatistics$`% 2nd serve return won 2`<- as.double(ATPstatistics$`% 2nd serve return won 2`)/100
-ATPstatistics$`% Break point converted 1`<- as.double(ATPstatistics$`% Break point converted 1`)/100
-ATPstatistics$`% Break point converted 2`<- as.double(ATPstatistics$`% Break point converted 2`)/100
+ATPstatistics$`% 1st Serve Won 1` <-as.double(ATPstatistics$`% 1st Serve Won 1`)/100
+ATPstatistics$`% 1st Serve Won 2` <-as.double(ATPstatistics$`% 1st Serve Won 2`)/100
+ATPstatistics$`% 2nd Serve Won 1` <-as.double(ATPstatistics$`% 2nd Serve Won 1`)/100
+ATPstatistics$`% 2nd Serve Won 2` <-as.double(ATPstatistics$`% 2nd Serve Won 2`)/100
+ATPstatistics$`% Break Point Saved 1` <- as.double(ATPstatistics$`% Break Point Saved 1`)/100
+ATPstatistics$`% Break Point Saved 2` <- as.double(ATPstatistics$`% Break Point Saved 2`)/100
+ATPstatistics$`% Served Point Won 1` <- as.double(ATPstatistics$`% Served Point Won 1`)/100
+ATPstatistics$`% Served Point Won 2` <- as.double(ATPstatistics$`% Served Point Won 2`)/100
+ATPstatistics$`% Return Point Won 1` <- as.double(ATPstatistics$`% Return Point Won 1`)/100
+ATPstatistics$`% Return Point Won 2` <- as.double(ATPstatistics$`% Return Point Won 2`)/100
+ATPstatistics$`% Total Point Won 1` <- as.double(ATPstatistics$`% Total Point Won 1`)/100
+ATPstatistics$`% Total Point Won 2` <- as.double(ATPstatistics$`% Total Point Won 2`)/100
+ATPstatistics$`% 1st Serve Return Won 1` <- as.double(ATPstatistics$`% 1st Serve Return Won 1`)/100
+ATPstatistics$`% 1st Serve Return Won 2` <- as.double(ATPstatistics$`% 1st Serve Return Won 2` )/100
+ATPstatistics$`% 2nd Serve Return Won 1`<- as.double(ATPstatistics$`% 2nd Serve Return Won 1`)/100
+ATPstatistics$`% 2nd Serve Return Won 2`<- as.double(ATPstatistics$`% 2nd Serve Return Won 2`)/100
+ATPstatistics$`% Break Point Converted 1`<- as.double(ATPstatistics$`% Break Point Converted 1`)/100
+ATPstatistics$`% Break Point Converted 2`<- as.double(ATPstatistics$`% Break Point Converted 2`)/100
 str(ATPstatistics)
 ```
 
@@ -79,7 +79,7 @@ summary(ATPstatistics)
 ```
 Existen observaciones con datos a cero, lo que denota que dichas observaciones no se han recogido datos para el partido. Los eliminamos a continuación.
 ```{r chunck6}
-ATPstatistics<- ATPstatistics[which(ATPstatistics$`Serve Rating 1`!=0 & ATPstatistics$`Serve Rating 2`!=0 & ATPstatistics$`Return rating 1` !=0 & ATPstatistics$`Return rating 2` !=0),]
+ATPstatistics<- ATPstatistics[which(ATPstatistics$`Serve Rating 1`!=0 & ATPstatistics$`Serve Rating 2`!=0 & ATPstatistics$`Return Rating 1` !=0 & ATPstatistics$`Return Rating 2` !=0),]
 ```
 ### Identificación y tratamiento de valores extremos.
 Para identificar los valores extrremos realizaremos unos diagramas de cajas. En el caso de tener valores fuera de la normalidad, se representarán con un circulo.
@@ -90,26 +90,26 @@ boxplot(ATPstatistics$`Aces 1`,notch=TRUE, main= ("Aces player 1"))
 boxplot(ATPstatistics$`Aces 2`,notch=TRUE, main= ("Aces player 2"))
 boxplot(ATPstatistics$`Double Faults 1`,notch=TRUE, main= ("Double Faults player 1"))
 boxplot(ATPstatistics$`Double Faults 2`,notch=TRUE, main= ("Double Faults player 2"))
-boxplot(ATPstatistics$`Return rating 1`,notch=TRUE, main= ("Return rating player 1"))
-boxplot(ATPstatistics$`Return rating 2`,notch=TRUE, main= ("Return rating player 2"))
+boxplot(ATPstatistics$`Return Rating 1`,notch=TRUE, main= ("Return rating player 1"))
+boxplot(ATPstatistics$`Return Rating 2`,notch=TRUE, main= ("Return rating player 2"))
 boxplot(ATPstatistics$`% 1st Serve 1`,notch=TRUE, main= ("% 1st Serve player 1"))
 boxplot(ATPstatistics$`% 1st Serve 2`,notch=TRUE, main= ("% 1st Serve player 2"))
-boxplot(ATPstatistics$`% 1st serve won 1`,notch=TRUE, main= ("% 1st Serve Won player 1"))
-boxplot(ATPstatistics$`% 1st serve won 2`,notch=TRUE, main= ("% 1st Serve Won player 2"))
-boxplot(ATPstatistics$`% 2nd serve won 1`,notch=TRUE, main= ("% 2nd Serve Won player 1"))
-boxplot(ATPstatistics$`% 2nd serve won 2`,notch=TRUE, main= ("% 2nd Serve Won player 2"))
-boxplot(ATPstatistics$`% Break point saved 1`,notch=TRUE, main= ("% Break point saved player 1"))
-boxplot(ATPstatistics$`% Break point saved 2`,notch=TRUE, main= ("% Break poiint saved player 2"))
-boxplot(ATPstatistics$`% 1st serve return won 1`,notch=TRUE, main= ("% 1st Serve Return Won player 1"))
-boxplot(ATPstatistics$`% 1st serve return won 2`,notch=TRUE, main= ("% 1st Serve Return Won player 2"))
-boxplot(ATPstatistics$`% 2nd serve return won 1`,notch=TRUE, main= ("% 2nd Serve Return Won player 1"))
-boxplot(ATPstatistics$`% 2nd serve return won 2`,notch=TRUE, main= ("% 2nd Serve Return Won player 2"))
-boxplot(ATPstatistics$`% Served point won 1`,notch=TRUE, main= ("% Served Point Won player 1"))
-boxplot(ATPstatistics$`% Served point won 2`,notch=TRUE, main= ("% Served Point Won player 2"))
-boxplot(ATPstatistics$`% Return point won 1`,notch=TRUE, main= ("% Return Point Won player 1"))
-boxplot(ATPstatistics$`% Return point won 2`,notch=TRUE, main= ("% Return Point Won player 2"))
-boxplot(ATPstatistics$`% Total point won 1`,notch=TRUE, main= ("Total Point Won player 1"))
-boxplot(ATPstatistics$`% Total point won 2`,notch=TRUE, main= ("Total Point Won player 2"))
+boxplot(ATPstatistics$`% 1st Serve Won 1`,notch=TRUE, main= ("% 1st Serve Won player 1"))
+boxplot(ATPstatistics$`% 1st Serve Won 2`,notch=TRUE, main= ("% 1st Serve Won player 2"))
+boxplot(ATPstatistics$`% 2nd Serve Won 1`,notch=TRUE, main= ("% 2nd Serve Won player 1"))
+boxplot(ATPstatistics$`% 2nd Serve Won 2`,notch=TRUE, main= ("% 2nd Serve Won player 2"))
+boxplot(ATPstatistics$`% Break Point Saved 1`,notch=TRUE, main= ("% Break point saved player 1"))
+boxplot(ATPstatistics$`% Break Point Saved 2`,notch=TRUE, main= ("% Break poiint saved player 2"))
+boxplot(ATPstatistics$`% 1st Serve Return Won 1`,notch=TRUE, main= ("% 1st Serve Return Won player 1"))
+boxplot(ATPstatistics$`% 1st Serve Return Won 2`,notch=TRUE, main= ("% 1st Serve Return Won player 2"))
+boxplot(ATPstatistics$`% 2nd Serve Return Won 1`,notch=TRUE, main= ("% 2nd Serve Return Won player 1"))
+boxplot(ATPstatistics$`% 2nd Serve Return Won 2`,notch=TRUE, main= ("% 2nd Serve Return Won player 2"))
+boxplot(ATPstatistics$`% Served Point Won 1`,notch=TRUE, main= ("% Served Point Won player 1"))
+boxplot(ATPstatistics$`% Served Point Won 2`,notch=TRUE, main= ("% Served Point Won player 2"))
+boxplot(ATPstatistics$`% Return Point Won 1`,notch=TRUE, main= ("% Return Point Won player 1"))
+boxplot(ATPstatistics$`% Return Point Won 2`,notch=TRUE, main= ("% Return Point Won player 2"))
+boxplot(ATPstatistics$`% Total Point Won 1`,notch=TRUE, main= ("Total Point Won player 1"))
+boxplot(ATPstatistics$`% Total Point Won 2`,notch=TRUE, main= ("Total Point Won player 2"))
 ```
 Existen bastantes valores extremos. Estos valores son normales, ya que por un lado, confiamos en la fuente de datos (ya que es una fuenta oficial) y por otro lado, es normal que haya jugadores que se salgan de lo normal, no hace falta irse muy lejos para saber que hay jugadores que tienen unas estadisticas que marcan una historia, ya sea Roger Federer o el español Rafael Nadal.
 ## Análisis de los datos.
@@ -188,7 +188,7 @@ for(i in 1:nrow(ATPstatistics)){
     }
     if(i == 1)
       dataset<-resultado
-    else
+    elsea<
       dataset <- rbind(as.matrix(dataset),as.matrix(resultado))
   }
 }
@@ -196,6 +196,7 @@ for(i in 1:nrow(ATPstatistics)){
 ```
 Una vez tenemos generado el dataset, procedemos a realizar un kfold de 10 y procedemos a entrenar los diferentes modelos.
 ```{r chunck10}
+
 
 ```
 Como podemos ver en en los resultados de los diferentes modelos obtenemos un acierto de X en test, por lo que afirmamos que con los datos que hemos obtenido podemos realizar predicciones de los partidos futuros. 
