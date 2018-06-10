@@ -226,7 +226,9 @@ ATPstatistics[,6]<-ATPstatistics[,6]/max(ATPstatistics[,6])
 ATPstatistics[,7]<-ATPstatistics[,7]/max(ATPstatistics[,7])
 ATPstatistics[,8]<-ATPstatistics[,8]/max(ATPstatistics[,8])
 ATPstatistics[,9]<-ATPstatistics[,9]/max(ATPstatistics[,9])
-summary(ATPstatistics[,4:9])
+ATPstatistics[,20]<-ATPstatistics[,20]/max(ATPstatistics[,20])
+ATPstatistics[,21]<-ATPstatistics[,21]/max(ATPstatistics[,21])
+summary(ATPstatistics[,c(4:8,20:21)])
 ```
 
 ## 5. Análisis de los datos
@@ -299,7 +301,6 @@ Procedemos a realizarlo para todos los partidos. Se almaceneará el resultado en
 
 ```{r chunck7}
 partidos = 5
-dataset <- matrix(nrow=0,ncol=63)
 variablesj1 <- c(1,seq(4,31,by = 2))
 variablesj2 <- c(1,seq(5,32,by = 2))
 otras_variables <- seq(33,ncol(ATPstatistics),by = 1)
@@ -315,8 +316,8 @@ for(i in 1:nrow(ATPstatistics)){
   estadisticas_jugador2 <- rbind(as.matrix(estadisticas_jugador2_2),as.matrix(estadisticas_jugador2_1))
   estadisticas_jugador1<-data.table(estadisticas_jugador1,key="id_partido")
   estadisticas_jugador2<-data.table(estadisticas_jugador2,key="id_partido")
-  estadisticas_jugador1 <- estadisticas_jugador1[(which(estadisticas_jugador2$id_partido >ATPstatistics$id_partido[i])),2:ncol(estadisticas_jugador1)]
-  estadisticas_jugador2 <- estadisticas_jugador2[(which(estadisticas_jugador2$id_partido > ATPstatistics$id_partido[i])),2:ncol(estadisticas_jugador2)]
+  estadisticas_jugador1 <- estadisticas_jugador1[estadisticas_jugador1$id_partido >ATPstatistics$id_partido[i],2:ncol(estadisticas_jugador1)]
+  estadisticas_jugador2 <- estadisticas_jugador2[estadisticas_jugador2$id_partido > ATPstatistics$id_partido[i],2:ncol(estadisticas_jugador2)]
   if(nrow(estadisticas_jugador1)>= partidos & nrow(estadisticas_jugador2)>= partidos){
     estadisticas_jugador1 <- estadisticas_jugador1[1:partidos,]
     estadisticas_jugador2 <- estadisticas_jugador2[1:partidos,] 
@@ -336,12 +337,17 @@ for(i in 1:nrow(ATPstatistics)){
         ganador = 1
       resultado <- cbind(ATPstatistics$id_partido[i],jugador2[i],jugador1[i],estadisticas_jugador2,estadisticas_jugador1,ganador,ATPstatistics[i,otras_variables])
     }
-    if(i == 1)
-      dataset<-resultado
+    if(i == 1){
+      dataset <- data.frame(resultado)
+      colnames(dataset)<-colnames(resultado)
+    }
     else
-      dataset <- rbind(as.matrix(dataset),as.matrix(resultado))
+      dataset <- rbind((dataset),(resultado))
   }
 }
+#Fomateo de dataset
+#dataframe <- as.data.frame()
+#dataset <- as.data.frame(dataset)
 colnames(dataset)[1:3]<-c("id_partido","Jugador 1","Jugador 2")
 colnames(dataset)[4:17]<-paste("Media",colnames(dataset)[4:17])
 colnames(dataset)[18:31]<-paste("Varianza",colnames(dataset)[18:31])
@@ -349,8 +355,11 @@ colnames(dataset)[32:45]<-paste("Media",colnames(dataset)[32:45])
 colnames(dataset)[46:59]<-paste("Varianza",colnames(dataset)[46:59])
 colnames(dataset)<-gsub(" ","_",colnames(dataset))
 colnames(dataset)<-gsub("%","Pct", colnames(dataset))
-write.csv(dataset, "./Data/dataset.csv")
-
+dataset[,1]<-as.integer(dataset[,1])
+for(i in 4:59)
+  dataset[,i] <- as.double(dataset[,i])
+dataset[,60]<-as.integer(dataset[,60])
+#write.csv(dataset, "./Data/dataset.csv")
 ```
 
 Generamos los modelos y se validarán mediante validación cruzada con k = 10.
@@ -360,11 +369,13 @@ library("dismo")
 library("MASS")
 library("neuralnet")
 index <- sample(1:nrow(dataset), round(0.8*nrow(dataset)))
-entrenamiento <- dataset[index,4:59]
-test <- dataset[-index,4:59]
-nms<-colnames(dataset)[4:59]
-frml <- as.formula(paste("ganador~",paste(nms, collapse = "+"), sep = "",paste("", sep = "")))
-NN = neuralnet(frml,entrenamiento, hidden= c(as.integer(length(nms)/2),as.integer(length(nms)/4)), linear.output = FALSE)
+entrenamiento <- dataset[index,4:60]
+test <- dataset[-index,4:60]
+nms<-colnames(dataset)[4:60]
+#frml <- as.formula(paste("ganador~",paste(nms, collapse = "+"), sep = "",paste("", sep = "")))
+frml <- as.formula(paste("ganador ~", paste(nms[!nms %in% "ganador"], collapse = " + ")))
+#frml <- "ganador ~ Varianza_Serve_Rating_1"
+NN = neuralnet(frml,entrenamiento, hidden= c(as.integer(length(nms/2)),as.integer(length(nms/4))), linear.output = TRUE)
 
 ```
 
