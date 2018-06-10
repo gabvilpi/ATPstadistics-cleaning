@@ -151,13 +151,12 @@ El primer paso a realizar en la limpieza de datos es analizar si los atirbutos c
 summary(ATPstatistics)
 ```
 
-Como podemos obaservar, existen atributos con datos a cero, algunos de estos atributos no pueden ser 0 y si lo son es por que no se han recogido datos para ese partido, por ejemplo 'Served Games Played'. Estas observaciones carecen de interés estadístico y debemos eliminarlas para que no alteren los modelos que construyamos a partir de los datos.
+Como podemos obaservar, no tenemos atributos con datos 'NA' pero sí con datos a cero. Algunos de estos atributos no pueden ser 0 y si lo son es por que no se han recogido datos para ese partido, por ejemplo 'Served Games Played'. Estas observaciones carecen de interés estadístico y debemos eliminarlas para que no alteren los modelos que construyamos a partir de los datos.
 
-A continuación borramos las observaciones que no han recogido datos de ese partido.
+Hemos comprobado en el dataset que las observaciones que contienen los atributos 'Served games played' y 'Return games played' son observaciones con todos los datos vacíos, por lo que procedemos a borrarlas.
 
 ```{r chunck6}
-# Modificar por el atributo 'Served games played'?
-ATPstatistics<- ATPstatistics[which(ATPstatistics$`Serve Rating 1`!=0 & ATPstatistics$`Serve Rating 2`!=0 & ATPstatistics$`Return Rating 1` !=0 & ATPstatistics$`Return Rating 2` !=0),]
+ATPstatistics<- ATPstatistics[which(ATPstatistics$`Served Games Played 1`!=0 & ATPstatistics$`Served Games Played 2`!=0 & ATPstatistics$`Return Games Played 1` !=0 & ATPstatistics$`Return Games Played 1` !=0),]
 ```
 
 ### 3.2 Identificación y tratamiento de valores extremos
@@ -193,49 +192,76 @@ boxplot(ATPstatistics$`% Total Point Won 1`,notch=TRUE, main= ("Total Point Won 
 boxplot(ATPstatistics$`% Total Point Won 2`,notch=TRUE, main= ("Total Point Won player 2"))
 ```
 
-Como podemos observar en los diagramas de caja, existen bastantes valores extremos. Nosotros hemos decidido mantener estos valores ya que, por un lado, confiamos en la fuente de datos (ya que es una fuenta oficial) y por otro lado, es normal que haya jugadores que se salgan de lo normal, no hace falta irse muy lejos para saber que hay jugadores que tienen unas estadisticas que marcan una historia, como por ejemplo Roger Federer y Rafael Nadal.
+Como podemos observar en los diagramas de caja, existen bastantes valores extremos. No obstante nosotros hemos decidido mantener estos valores ya que, las estadísticas de los jugadores no tienen por que seguir una distribución normal, dentro del mismo torneo puede haber jugadores con un rendimiento muy alto por encima de la media, como por ejemplo Roger Federer y Rafael Nadal y otros que tengan un rendimiento muy bajo.
 
-## 4. Análisis de los datos
+Por ejemplo, si analizamos los datos del atributo 'Serve Rating 1' que contiene la puntuación oficial de la ATP para el servicio del jugador 1, observamos los siguientes outliers.
 
-### 4.1. Selección de datos a analizar / comparar
+```{r chunck4.1}
+boxplot.stats(ATPstatistics$`Serve Rating 1`)$out
+```
 
-Selección de los grupos de datos que se quieren analizar/comparar(planificación de los análisis a aplicar).
+Para ver si estos datos son correctos, vamos a buscar el máximo de todos los outliers y averiguamos a qué partido corresponde para analizar los datos.
 
-Quitaremos el número total de juegos al servicio y al resto, ya que a priori, no nos aporta información relativa al juego de cada jugador.
+```{r chunck4.2}
+max(boxplot.stats(ATPstatistics$`Serve Rating 1`)$out)
+ATPstatistics[ATPstatistics$`Serve Rating 1` == max(boxplot.stats(ATPstatistics$`Serve Rating 1`)$out),c(2:3, 36:39)]
+```
+
+Este partido pasó a la hitoria con varios records, entre ellos, el partido con más juegos de la historia, el de mayor duración, el de mayor puntuación y el partido con más ACEs. Adjuntamos un enlace con el detalle de este partido: https://es.wikipedia.org/wiki/Partido_Isner-Mahut_de_Wimbledon_2010
+
+Al ser una fuente de datos oficial y referente en cuanto a las estadísticas de los torneos, es muy improbable que siendo revisados por un gran número de gente, exitan datos erroneos que no hayan sido reportados y corregidos.
+
+## 4. Transformación de los datos
+
+### 4.1 Normalización
+
+En este apartado vamos a proceder a normalizar los datos. Esta transformación de los datos es algo fundamental como paso previo a utilizar los datos con algoritmos de aprendizaje automático. Los datos deben tener el mismo valor, por lo que lo suyo es que las variables numéricas deben de estar todas bajo el mismo rango, normalmente entre 0 y 1. 
+
+cogemos cada atributo y lo dividimos entre el máximo de cada atributo, de esta forma tendríamos el rango deseado.
+
+```{r chunck9.2}
+ATPstatistics[,4]<-ATPstatistics[,4]/max(ATPstatistics[,4])
+ATPstatistics[,5]<-ATPstatistics[,5]/max(ATPstatistics[,5])
+ATPstatistics[,6]<-ATPstatistics[,6]/max(ATPstatistics[,6])
+ATPstatistics[,7]<-ATPstatistics[,7]/max(ATPstatistics[,7])
+ATPstatistics[,8]<-ATPstatistics[,8]/max(ATPstatistics[,8])
+ATPstatistics[,9]<-ATPstatistics[,9]/max(ATPstatistics[,9])
+summary(ATPstatistics[,4:9])
+```
+
+## 5. Análisis de los datos
+
+### 5.1. Selección de datos a analizar / comparar
+
+De manera previa al análisis de los datos, debemos seleccionar del dataset aquellos atribrutos que nos parezcan relevantes para construir nuestro modelo. Nosotros hemos decidido eliminar del data set los atributos con el número total de juegos al servicio y al resto, ya que a priori, no nos aporta información relevante sobre el rendimiento de cada jugador.
 
 ```{r chunck4}
 ATPstatistics<-ATPstatistics[-c(18:19)]
 ATPstatistics<-ATPstatistics[-c(26:27)]
 ```
 
-### 4.2. Análisis de la varianza
+### 5.2. Comprobación de la normalidad de los datos
 
-Comprobación de la normalidad y homogeneidad de la varianza.
+Para llevar a cabo este proceso primero vamos a revisar si los atributos son candidatos a ser normalizados mediante la función qqnorm y shapiro.test.
 
-Realizamos un test de normalidad y homogeneidad a los datos
-
-```{r chunck9}
-'
-#NO FUNCIONA
-library(nortest)
-atributos_no_normales = c()
-for(i in 4:(ncol(ATPstatistics)-5)){
-  atributos_no_normales = c(atributos_no_normales,colnames(ATPstatistics[ad.test(as.matrix(ATPstatistics[,i]))$p.value < 0.05]))
+```{r chunck9.1}
+for (i in c(4:31)){
+  qqnorm(t(ATPstatistics[,i]), main = colnames(ATPstatistics[,i]))
+  qqline(t(ATPstatistics[,i]), col='red')
+  print(shapiro.test(t(ATPstatistics[1:5000,i])))
 }
-'
-
-#Añadir homogeneidad
 ```
 
-### 4.3. Pruebas estadísticas de los datos
+Como podemos observar mediante las gráficas y el resultado del test shapiro, salvo el atrituto 'Serve Rating 1', el resto indica que Pvalue < 0.05 por lo que rechazamos le hipótesis nula y tomamos la aternativo; ninguno de estos atributos sigue una distribución normal. 
+
+### 5.3. Pruebas estadísticas de los datos
 
 Aplicación de pruebas estadísticas para comparar los grupos de datos. En funci?n de los datos y el objetivo del estudio, aplicar pruebas de contrastede hipótesis, correlaciones, regresiones, etc.
 
 ```{r chunck11}
-
 ```
 
-## 5. Representación gráfica de los datos
+## 6. Representación gráfica de los datos
 
 Representación de los resultados a partir de tablas y gráficas.
 
@@ -243,13 +269,14 @@ Representación de los resultados a partir de tablas y gráficas.
 
 ```
 
-## 6. Resolución del problema
+## 7. Resolución del problema
 
 A partir de los resultados obtenidos, ?cu?les son las conclusiones? ?Los resultados permiten responder al problema?
 
 Para poder responder a la pregunta que nos planteabamos al inicio, dado que los datos no están del todo preparados, ya que tenemos las estadisticas reales de los partidos. Necesitamos obtener las estimaciones de los partidos, para ello, realizaremos la media y varianza de las estadisticas de los últimos partidos de cada jugador.
 
 ```{r chunck7}
+'
 require(data.table)
 partidos = 5
 dataset <- matrix(nrow=0,ncol=63)
@@ -296,6 +323,7 @@ for(i in 1:nrow(ATPstatistics)){
   }
 }
 #write.csv(dataset, "./Data/dataset.csv")
+'
 ```
 
 Una vez tenemos generado el dataset, procedemos a realizar un kfold de 10 y procedemos a entrenar los diferentes modelos.
