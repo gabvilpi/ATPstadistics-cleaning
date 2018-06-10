@@ -264,7 +264,9 @@ De momento disponemos de un dataset que contiene todos los registro de los parti
 ```{r chunck7_1}
 ATPstatistics[(ATPstatistics$`Player 1` == "Rafael Nadal" | ATPstatistics$`Player 2` == "Rafael Nadal") & (ATPstatistics$`Player 1`=="Roger Federer" | ATPstatistics$`Player 2` == "Roger Federer"),][1,]
 ```
-La estimación para este partido sería de la siguiente forma:
+
+La estimación para este partido sería la siguiente:
+
 ```{r chunck 7_2}
 require(data.table)
 variablesj1 <- c(1,seq(4,31,by = 2))
@@ -345,21 +347,24 @@ colnames(dataset)[4:17]<-paste("Media",colnames(dataset)[4:17])
 colnames(dataset)[18:31]<-paste("Varianza",colnames(dataset)[18:31])
 colnames(dataset)[32:45]<-paste("Media",colnames(dataset)[32:45])
 colnames(dataset)[46:59]<-paste("Varianza",colnames(dataset)[46:59])
+colnames(dataset)<-gsub(" ","_",colnames(dataset))
+colnames(dataset)<-gsub("%","Pct", colnames(dataset))
 write.csv(dataset, "./Data/dataset.csv")
 
 ```
 
 Generamos los modelos y se validarán mediante validación cruzada con k = 10.
+
 ```{r chunck 7_3}
 library("dismo")
 library("MASS")
 library("neuralnet")
 index <- sample(1:nrow(dataset), round(0.8*nrow(dataset)))
-entranamiento = dataset[index,]
-test = dataset[-index,]
+entrenamiento <- dataset[index,4:59]
+test <- dataset[-index,4:59]
 nms<-colnames(dataset)[4:59]
-frml <- as.formula(paste("ganador~'",paste(nms, collapse = "'+'"), "", collapse = ""))
-NN = neuralnet(frml,entrenamiento, hidden= c(nrow(nms)/2), linear.output = FALSE)
+frml <- as.formula(paste("ganador~",paste(nms, collapse = "+"), sep = "",paste("", sep = "")))
+NN = neuralnet(frml,entrenamiento, hidden= c(as.integer(length(nms)/2),as.integer(length(nms)/4)), linear.output = FALSE)
 
 ```
 
