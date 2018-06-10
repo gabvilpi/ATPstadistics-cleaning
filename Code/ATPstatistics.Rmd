@@ -375,7 +375,7 @@ nms<-colnames(dataset)[4:60]
 #frml <- as.formula(paste("ganador~",paste(nms, collapse = "+"), sep = "",paste("", sep = "")))
 frml <- as.formula(paste("ganador ~", paste(nms[!nms %in% "ganador"], collapse = " + ")))
 #frml <- "ganador ~ Varianza_Serve_Rating_1"
-NN = neuralnet(frml,entrenamiento, hidden= c(as.integer(length(nms/2)),as.integer(length(nms/4))), linear.output = TRUE)
+NN = neuralnet(frml,entrenamiento, hidden= c(as.integer(length(nms)/2),as.integer(length(nms)/4)), linear.output = TRUE)
 
 ```
 
