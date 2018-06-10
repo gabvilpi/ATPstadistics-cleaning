@@ -254,30 +254,48 @@ for (i in c(4:31)){
 
 Como podemos observar mediante las gráficas y el resultado del test shapiro, salvo el atrituto 'Serve Rating 1', el resto indica que Pvalue < 0.05 por lo que rechazamos le hipótesis nula y tomamos la aternativo; ninguno de estos atributos sigue una distribución normal. 
 
-### 5.3. Pruebas estadísticas de los datos
+### 5.3. Modelo de clasificación y predicción a partir de los datos
 
-Aplicación de pruebas estadísticas para comparar los grupos de datos. En funci?n de los datos y el objetivo del estudio, aplicar pruebas de contrastede hipótesis, correlaciones, regresiones, etc.
+Vamos a proceder a crear un modelo de clasificación con el objetivo de predecir el ganador de nuevos partidos o torneos. Para ello, vamos a dividir el dataset en un grupo de entrenamiento y otro de test.
+Utilizaremos el set de entrenamiento para entrenar diferentes modelos de machine learning como redes neuronales, arboles de decisión y algoritmos lazy (KNN). Después, utilizaremos el dataset de test para verficar la bondad del modelo.
 
-```{r chunck11}
+De momento disponemos de un dataset que contiene todos los registro de los partidos desde 2010 a la actulidad. A largo de la práctica, hemos seleccionado, limpiado y transformado dichos datos. Pero para poder predecir el restultado de un encuentro futuro, necesitamos basarnos en los datos de los partidos anteriores. Por lo tanto, vamos a proceder a crear un nuevo dataset que contendrá én cada registro la media y la varianza de cada una de las estadísicas de cada jugador para los últimos 5 partidos y el resultado del partido que disputó. Ponemos como ejemplo el último partido disputado entre Rafael Nadal y Roger Fededer. Las estadisticas de ese partido fueron las siguientes:
+
+```{r chunck7_1}
+ATPstatistics[(ATPstatistics$`Player 1` == "Rafael Nadal" | ATPstatistics$`Player 2` == "Rafael Nadal") & (ATPstatistics$`Player 1`=="Roger Federer" | ATPstatistics$`Player 2` == "Roger Federer"),][1,]
+```
+La estimación para este partido sería de la siguiente forma:
+```{r chunck 7_2}
+require(data.table)
+variablesj1 <- c(1,seq(4,31,by = 2))
+variablesj2 <- c(1,seq(5,32,by = 2))
+otras_variables <- seq(33,ncol(ATPstatistics),by = 1)
+resultado <- matrix(nrow=0,ncol=63)
+partidos = 5
+jugador1<-"Roger Federer"
+jugador2<-"Rafael Nadal"
+id_partido <- ATPstatistics[(ATPstatistics$`Player 1` == "Rafael Nadal" | ATPstatistics$`Player 2` == "Rafael Nadal") & (ATPstatistics$`Player 1`=="Roger Federer" | ATPstatistics$`Player 2` == "Roger Federer"),][1,1]
+estadisticas_jugador1_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador1),variablesj1]
+estadisticas_jugador1_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador1),variablesj2]
+estadisticas_jugador2_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador2),variablesj1]
+estadisticas_jugador2_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador2),variablesj2] 
+estadisticas_jugador1 <- rbind(as.matrix(estadisticas_jugador1_1),as.matrix(estadisticas_jugador1_2))
+estadisticas_jugador2 <- rbind(as.matrix(estadisticas_jugador2_2),as.matrix(estadisticas_jugador2_1))
+estadisticas_jugador1<-data.table(estadisticas_jugador1,key="id_partido")
+estadisticas_jugador2<-data.table(estadisticas_jugador2,key="id_partido")
+estadisticas_jugador1 <- estadisticas_jugador1[(which(estadisticas_jugador1$id_partido > id_partido[1])),2:ncol(estadisticas_jugador1)]
+estadisticas_jugador2 <- estadisticas_jugador2[(which(estadisticas_jugador2$id_partido > id_partido[1])),2:ncol(estadisticas_jugador2)]
+estadisticas_jugador1 <- estadisticas_jugador1[1:partidos,]
+estadisticas_jugador2 <- estadisticas_jugador2[1:partidos,]
+estadisticas_jugador1 <- cbind(t(colMeans(estadisticas_jugador1)),t(apply(estadisticas_jugador1,2,sd)))
+estadisticas_jugador2 <- cbind(t(colMeans(estadisticas_jugador2)),t(apply(estadisticas_jugador2,2,sd)))
+resultado <- cbind(id_partido,jugador1,jugador2,estadisticas_jugador1,estadisticas_jugador2,ATPstatistics[ATPstatistics$id_partido==2018,"Winner"],ATPstatistics[(ATPstatistics$`Player 1` == "Rafael Nadal" | ATPstatistics$`Player 2` == "Rafael Nadal") & (ATPstatistics$`Player 1`=="Roger Federer" | ATPstatistics$`Player 2` == "Roger Federer"),][1,otras_variables])
+resultado
 ```
 
-## 6. Representación gráfica de los datos
-
-Representación de los resultados a partir de tablas y gráficas.
-
-```{r chunck12}
-
-```
-
-## 7. Resolución del problema
-
-A partir de los resultados obtenidos, ?cu?les son las conclusiones? ?Los resultados permiten responder al problema?
-
-Para poder responder a la pregunta que nos planteabamos al inicio, dado que los datos no están del todo preparados, ya que tenemos las estadisticas reales de los partidos. Necesitamos obtener las estimaciones de los partidos, para ello, realizaremos la media y varianza de las estadisticas de los últimos partidos de cada jugador.
+Procedemos a realizarlo para todos los partidos. Se almaceneará el resultado en el fichero "dataset.csv".
 
 ```{r chunck7}
-'
-require(data.table)
 partidos = 5
 dataset <- matrix(nrow=0,ncol=63)
 variablesj1 <- c(1,seq(4,31,by = 2))
@@ -299,7 +317,7 @@ for(i in 1:nrow(ATPstatistics)){
   estadisticas_jugador2 <- estadisticas_jugador2[(which(estadisticas_jugador2$id_partido > ATPstatistics$id_partido[i])),2:ncol(estadisticas_jugador2)]
   if(nrow(estadisticas_jugador1)>= partidos & nrow(estadisticas_jugador2)>= partidos){
     estadisticas_jugador1 <- estadisticas_jugador1[1:partidos,]
-    estadisticas_jugador2 <- estadisticas_jugador2[1:partidos,]
+    estadisticas_jugador2 <- estadisticas_jugador2[1:partidos,] 
     estadisticas_jugador1 <- cbind(t(colMeans(estadisticas_jugador1)),t(apply(estadisticas_jugador1,2,sd)))
     estadisticas_jugador2 <- cbind(t(colMeans(estadisticas_jugador2)),t(apply(estadisticas_jugador2,2,sd)))
     if(i%%2 == 1){
@@ -322,9 +340,44 @@ for(i in 1:nrow(ATPstatistics)){
       dataset <- rbind(as.matrix(dataset),as.matrix(resultado))
   }
 }
-#write.csv(dataset, "./Data/dataset.csv")
-'
+colnames(dataset)[1:3]<-c("id_partido","Jugador 1","Jugador 2")
+colnames(dataset)[4:17]<-paste("Media",colnames(dataset)[4:17])
+colnames(dataset)[18:31]<-paste("Varianza",colnames(dataset)[18:31])
+colnames(dataset)[32:45]<-paste("Media",colnames(dataset)[32:45])
+colnames(dataset)[46:59]<-paste("Varianza",colnames(dataset)[46:59])
+write.csv(dataset, "./Data/dataset.csv")
+
 ```
+
+Generamos los modelos y se validarán mediante validación cruzada con k = 10.
+```{r chunck 7_3}
+library("dismo")
+library("MASS")
+library("neuralnet")
+index <- sample(1:nrow(dataset), round(0.8*nrow(dataset)))
+entranamiento = dataset[index,]
+test = dataset[-index,]
+nms<-colnames(dataset)[4:59]
+frml <- as.formula(paste("ganador~'",paste(nms, collapse = "'+'"), "", collapse = ""))
+NN = neuralnet(frml,entrenamiento, hidden= c(nrow(nms)/2), linear.output = FALSE)
+
+```
+
+## 6. Representación gráfica de los datos
+
+Representación de los resultados a partir de tablas y gráficas.
+
+```{r chunck12}
+
+```
+
+## 7. Resolución del problema
+
+A partir de los resultados obtenidos, ?cu?les son las conclusiones? ?Los resultados permiten responder al problema?
+
+Para poder responder a la pregunta que nos planteabamos al inicio, dado que los datos no están del todo preparados, ya que tenemos las estadisticas reales de los partidos. Necesitamos obtener las estimaciones de los partidos, para ello, realizaremos la media y varianza de las estadisticas de los últimos partidos de cada jugador.
+
+
 
 Una vez tenemos generado el dataset, procedemos a realizar un kfold de 10 y procedemos a entrenar los diferentes modelos.
 
