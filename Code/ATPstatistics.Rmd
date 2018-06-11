@@ -367,17 +367,19 @@ Una vez generado el dataset con las estimaciones, procedemos a generar el modelo
 
 ```{r chunck 7_3}
 #dataset <- read.csv("./Data/dataset.csv")
-library("dismo")
-library("nnet")
-library("neuralnet")
+#dataset <- dataset[,-1]
 dataset_aux <- sample(1:nrow(dataset),7500)
 index <- sample(1:7500,round(0.8*7500))
 entrenamiento <- dataset[index,4:60]
 test <- dataset[dataset_aux[-index],4:60]
 nms<-colnames(dataset)[4:60]
-frml <- as.formula(paste("ganador ~", paste(nms[!nms %in% "ganador"], collapse = " + ")))
+
+#frml <- as.formula(paste("ganador ~", paste(nms[!nms %in% "ganador"], collapse = " + ")))
+
+# Modelo con nnet
+library("nnet")
 #NN = nnet(frml, size = length(nms)*2, data = entrenamiento, rang = 0.5, maxit=200, decay = 0, MaxNWts = 100000)
-NN = nnet(entrenamiento[,1:56],entrenamiento[,57],size = length(nms)*2,rang = 0.5, maxit=200, decay = 0, MaxNWts = 100000,linout=T)
+NN = nnet(entrenamiento[,1:56],entrenamiento[,57],size = length(nms)/2, rang = 0.01, maxit=1000, decay = 0.0001, MaxNWts = 100000, linout=T, trace = F)
 salida_entrenamiento <- NN$fitted.values
 for(i in 1:length(salida_entrenamiento)){
   if(salida_entrenamiento[i] < 0)
@@ -386,6 +388,7 @@ for(i in 1:length(salida_entrenamiento)){
     salida_entrenamiento[i] = 1
 }
 table(entrenamiento[,57],salida_entrenamiento)
+sum(salida_entrenamiento==entrenamiento[,57]) / length(salida_entrenamiento)
 salida_test <- predict(NN, test[,1:56])
 for(i in 1:length(salida_test)){
   if(salida_test[i] < 0)
@@ -394,6 +397,7 @@ for(i in 1:length(salida_test)){
     salida_test[i] = 1
 }
 table(test[,57], salida_test)
+sum(salida_test==test[,57]) / length(salida_test)
 ```
 
 ## 6. Representación gráfica de los datos
