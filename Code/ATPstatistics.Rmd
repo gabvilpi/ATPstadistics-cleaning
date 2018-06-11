@@ -207,7 +207,7 @@ max(boxplot.stats(ATPstatistics$`Serve Rating 1`)$out)
 ATPstatistics[ATPstatistics$`Serve Rating 1` == max(boxplot.stats(ATPstatistics$`Serve Rating 1`)$out),c(2:3, 36:39)]
 ```
 
-Este partido pasó a la hitoria con varios records, entre ellos, el partido con más juegos de la historia, el de mayor duración, el de mayor puntuación y el partido con más ACEs. Adjuntamos un enlace con el detalle de este partido: https://es.wikipedia.org/wiki/Partido_Isner-Mahut_de_Wimbledon_2010
+Este partido pasó a la historia con varios records, entre ellos, el partido con más juegos de la historia, el de mayor duración, el de mayor puntuación y el partido con más ACEs. Adjuntamos un enlace con el detalle de este partido: https://es.wikipedia.org/wiki/Partido_Isner-Mahut_de_Wimbledon_2010
 
 Al ser una fuente de datos oficial y referente en cuanto a las estadísticas de los torneos, es muy improbable que siendo revisados por un gran número de gente, exitan datos erroneos que no hayan sido reportados y corregidos.
 
@@ -235,7 +235,7 @@ summary(ATPstatistics[,c(4:8,20:21)])
 
 ### 5.1. Selección de datos a analizar / comparar
 
-Antes de realizar el análisis de los datos, debemos seleccionar del dataset aquellos atribrutos que nos parezcan relevantes para construir nuestro modelo. Nosotros hemos decidido eliminar del dataset los atributos con el número total de juegos al servicio y al restoya que, a priori, no nos aportan información relevante sobre el rendimiento de cada jugador.
+Antes de realizar el análisis de los datos, debemos seleccionar del dataset aquellos atribrutos que nos parezcan relevantes para construir nuestro modelo. Nosotros hemos decidido eliminar del dataset los atributos con el número total de juegos al servicio y al resto ya que, a priori, no nos aportan información relevante sobre el rendimiento de cada jugador.
 
 ```{r chunck4}
 ATPstatistics<-ATPstatistics[-c(18:19)]
@@ -365,7 +365,7 @@ dataset[,60]<-as.integer(dataset[,60])
 #write.csv(dataset, "./Data/dataset.csv")
 ```
 
-Una vez generado el dataset con las estimaciones, procedemos a generar el modelo y a validar su exactitud.
+Una vez generado el dataset con las estimaciones, procedemos a generar el modelo. Para simplificar la práctica reduciremos los datos a 7500 registros en lugar de tomar el dataset entero.
 
 ```{r chunck 7_3}
 #dataset <- read.csv("./Data/dataset.csv")
