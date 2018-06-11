@@ -564,7 +564,7 @@ str(ATPstatistics)</code></pre>
 ##   `Player 1` `Player 2`    Winner     Tournament `Started date` `Ended da~
 ##   &lt;fctr&gt;     &lt;fctr&gt;        &lt;fctr&gt;     &lt;fctr&gt;     &lt;date&gt;         &lt;date&gt;    
 ## 1 John Isner Nicolas Mahut John Isner Wimbledon  2010-06-21     2010-07-04</code></pre>
-<p>Este partido pasó a la hitoria con varios records, entre ellos, el partido con más juegos de la historia, el de mayor duración, el de mayor puntuación y el partido con más ACEs. Adjuntamos un enlace con el detalle de este partido: <a href="https://es.wikipedia.org/wiki/Partido_Isner-Mahut_de_Wimbledon_2010" class="uri">https://es.wikipedia.org/wiki/Partido_Isner-Mahut_de_Wimbledon_2010</a></p>
+<p>Este partido pasó a la historia con varios records, entre ellos, el partido con más juegos de la historia, el de mayor duración, el de mayor puntuación y el partido con más ACEs. Adjuntamos un enlace con el detalle de este partido: <a href="https://es.wikipedia.org/wiki/Partido_Isner-Mahut_de_Wimbledon_2010" class="uri">https://es.wikipedia.org/wiki/Partido_Isner-Mahut_de_Wimbledon_2010</a></p>
 <p>Al ser una fuente de datos oficial y referente en cuanto a las estadísticas de los torneos, es muy improbable que siendo revisados por un gran número de gente, exitan datos erroneos que no hayan sido reportados y corregidos.</p>
 </div>
 </div>
@@ -603,7 +603,7 @@ summary(ATPstatistics[,c(4:8,20:21)])</code></pre>
 <h2>5. Análisis de los datos</h2>
 <div id="seleccion-de-datos-a-analizar-comparar" class="section level3">
 <h3>5.1. Selección de datos a analizar / comparar</h3>
-<p>Antes de realizar el análisis de los datos, debemos seleccionar del dataset aquellos atribrutos que nos parezcan relevantes para construir nuestro modelo. Nosotros hemos decidido eliminar del dataset los atributos con el número total de juegos al servicio y al restoya que, a priori, no nos aportan información relevante sobre el rendimiento de cada jugador.</p>
+<p>Antes de realizar el análisis de los datos, debemos seleccionar del dataset aquellos atribrutos que nos parezcan relevantes para construir nuestro modelo. Nosotros hemos decidido eliminar del dataset los atributos con el número total de juegos al servicio y al resto ya que, a priori, no nos aportan información relevante sobre el rendimiento de cada jugador.</p>
 <pre class="r"><code>ATPstatistics&lt;-ATPstatistics[-c(18:19)]
 ATPstatistics&lt;-ATPstatistics[-c(26:27)]</code></pre>
 </div>
@@ -932,7 +932,7 @@ for(i in 4:59)
   dataset[,i] &lt;- as.double(dataset[,i])
 dataset[,60]&lt;-as.integer(dataset[,60])
 #write.csv(dataset, &quot;./Data/dataset.csv&quot;)</code></pre>
-<p>Una vez generado el dataset con las estimaciones, procedemos a generar el modelo y a validar su exactitud.</p>
+<p>Una vez generado el dataset con las estimaciones, procedemos a generar el modelo. Para simplificar la práctica reduciremos los datos a 7500 registros en lugar de tomar el dataset entero.</p>
 <pre class="r"><code>#dataset &lt;- read.csv(&quot;./Data/dataset.csv&quot;)
 #dataset &lt;- dataset[,-1]
 dataset_aux &lt;- sample(1:nrow(dataset),7500)
@@ -971,25 +971,25 @@ confusionMatrix(data = salida_entrenamiento, entrenamiento[,57])</code></pre>
 ## 
 ##           Reference
 ## Prediction   -1    1
-##         -1 2566  474
-##         1   458 2502
+##         -1 2402  418
+##         1   595 2585
 ##                                           
-##                Accuracy : 0.8447          
-##                  95% CI : (0.8353, 0.8537)
-##     No Information Rate : 0.504           
-##     P-Value [Acc &gt; NIR] : &lt;2e-16          
+##                Accuracy : 0.8312          
+##                  95% CI : (0.8214, 0.8406)
+##     No Information Rate : 0.5005          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
 ##                                           
-##                   Kappa : 0.6893          
-##  Mcnemar's Test P-Value : 0.6232          
+##                   Kappa : 0.6623          
+##  Mcnemar's Test P-Value : 3.206e-08       
 ##                                           
-##             Sensitivity : 0.8485          
-##             Specificity : 0.8407          
-##          Pos Pred Value : 0.8441          
-##          Neg Pred Value : 0.8453          
-##              Prevalence : 0.5040          
-##          Detection Rate : 0.4277          
-##    Detection Prevalence : 0.5067          
-##       Balanced Accuracy : 0.8446          
+##             Sensitivity : 0.8015          
+##             Specificity : 0.8608          
+##          Pos Pred Value : 0.8518          
+##          Neg Pred Value : 0.8129          
+##              Prevalence : 0.4995          
+##          Detection Rate : 0.4003          
+##    Detection Prevalence : 0.4700          
+##       Balanced Accuracy : 0.8311          
 ##                                           
 ##        'Positive' Class : -1              
 ## </code></pre>
@@ -1008,25 +1008,25 @@ confusionMatrix(data = salida_test, test[,57])</code></pre>
 ## 
 ##           Reference
 ## Prediction  -1   1
-##         -1 437 333
-##         1  324 406
+##         -1 413 298
+##         1  335 454
 ##                                           
-##                Accuracy : 0.562           
-##                  95% CI : (0.5365, 0.5873)
-##     No Information Rate : 0.5073          
-##     P-Value [Acc &gt; NIR] : 1.248e-05       
+##                Accuracy : 0.578           
+##                  95% CI : (0.5525, 0.6032)
+##     No Information Rate : 0.5013          
+##     P-Value [Acc &gt; NIR] : 1.563e-09       
 ##                                           
-##                   Kappa : 0.1237          
-##  Mcnemar's Test P-Value : 0.755           
+##                   Kappa : 0.1559          
+##  Mcnemar's Test P-Value : 0.1525          
 ##                                           
-##             Sensitivity : 0.5742          
-##             Specificity : 0.5494          
-##          Pos Pred Value : 0.5675          
-##          Neg Pred Value : 0.5562          
-##              Prevalence : 0.5073          
-##          Detection Rate : 0.2913          
-##    Detection Prevalence : 0.5133          
-##       Balanced Accuracy : 0.5618          
+##             Sensitivity : 0.5521          
+##             Specificity : 0.6037          
+##          Pos Pred Value : 0.5809          
+##          Neg Pred Value : 0.5754          
+##              Prevalence : 0.4987          
+##          Detection Rate : 0.2753          
+##    Detection Prevalence : 0.4740          
+##       Balanced Accuracy : 0.5779          
 ##                                           
 ##        'Positive' Class : -1              
 ## </code></pre>
