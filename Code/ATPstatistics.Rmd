@@ -1,6 +1,6 @@
 ---
-title: "PEC3 - Modelaci?n predictiva"
-author: "Alejandro Manuel Olivares Luque"
+title: "Práctica 2: Limpieza y validación de los datos"
+author: "Alejandro Manuel Olivares Luque y Gabriel Villalba Pintado"
 date: '`r format(Sys.Date(),"%e de %B, %Y")`'
 output:
   html_document:
@@ -11,44 +11,94 @@ output:
     toc_depth: 4
 ---
 
-#PEC3 - Modelaci?n predictiva
+# Práctica 2: Limpieza y validación de los datos
 
-## Descripci?n del dataset. ?Por qu? es importante y qu? pregunta/problema pretende responder?
-##Integraci?n y selecci?n de los datos de inter?s a analizar.
-Se realiza la carga de los datos. 
+Enlace a GitHub: https://github.com/gabvilpi/ATPstatistics-cleaning
+
+## 1. Descripción del dataset
+
+La Asociación de Tenistas Profesionales (ATP) organiza diferentes torneos en una misma temporada, que abarca de Enero a Noviembre. Los torneos se clasifican según la puntuación que el ganador recibe en cada uno de ellos:
+
+- ATP 250
+- ATP 500
+- ATP 1000
+- Grand Slam (2000)
+
+Por lo tanto, los ganadores se embolsan desde 250 puntos en el primero torneo hasta los 2000 de un Grand Slam. Esta puntuación se utiliza para realizar la clasificación de los tenistas en el ranking mundial. Los tenistas con mejor ranking disponen de plazas directas para jugar los torneos, mientras que el resto tendrá que jugar un mini torneo para poder acceder a ellos.
+
+Además de la puntuación, los torneos difieren en la cantidad de tenistas que participan en ellos, diferencia que va desde los 28 tenistas que disputan un ATP 250 hasta los 128 de un Grand Slam.
+
+El dataset "ATPStatistics" utilizado para esta práctica, es un set de datos sobre la competición ATP World Tour que se ha obtenido mediante un proyecto de web Scraping de la página http://www.atpworldtour.com/ desarrollado por Alejandro Manuel Olivares Luque.
+
+En dicho proyecto se ha realizado la extracción de datos, estadísticas y resultados de los partidos oficiales organizados por Asociación de Tenistas Profesionales (ATP).
+
+El desarrollo del scrapper se ha realizado mediante el lenguaje Python y haciendo uso de librerías adicionales como urllib2, beautifulsoup y xlwt. Todo el código se encuentra disponible en Github en el siguiente enlace: https://github.com/olivaresluque/scrapATP
+
+El resultado obtenido se ha almacenado en fichero de Microsoft Excel en formato xls. En él se ha volcado la información relativa a los partidos comprendidos entre el año 2011 y la actualidad, lo que representa algo más de 30.000 registros. Para cada registro se dispone de los siguientes atributos:
+
+- id_partido: Código identificador únido del partido
+- Player 1: Nombre del jugador 1 del partido
+- Player 2: Nombre del jugador 2 del partido
+- Serve Rating 1: Puntuación oficial del saque para el jugador 1
+- Serve Rating 2: Puntuación oficial del saque para el jugador 2
+- Aces 1: Cantidad de ACEs del jugador 1 en el partido	
+- Aces 2:  Cantidad de ACEs del jugador 2 en el partido
+- Double Faults 1: Número de faltas dobles del jugador 1 en el partido
+- Double Faults 2: Número de faltas dobles del jugador 2 en el partido
+- % 1st Serve 1: Porcentaje de servicios correctos en el primer servicio para el jugador 1
+- % 1st Serve 2: Porcentaje de servicios correctos en el primer servicio para el jugador 2
+- % 1st Serve Won 1: Porcentaje de puntos ganados con el primer servicio para el jugador 1
+- % 1st Serve Won 2: Porcentaje de puntos ganados con el primer servicio para el jugador 2
+- % 2nd Serve Won 1: Porcentaje de puntos ganados con el segundo servicio para el jugador 1
+- % 2nd Serve Won 2: : Porcentaje de puntos ganados con el segundo servicio para el jugador 2
+- % Break Point Saved 1: Porcentaje de puntos de break salvados por el jugador 1
+- % Break Point Saved 2: Porcentaje de puntos de break salvados por el jugador 2
+- Served Games Played 1: Número de juegos en los que ha tenido servicio el jugador 1
+- Served Games Played 2: Número de juegos en los que ha tenido servicio el jugador 2
+- Return Rating 1: Puntuación oficial de resto para el jugador 1
+- Return Rating 2: Puntuación oficial de resto para el jugador 2
+- % 1st Serve Return Won 1: Porcentaje de puntos ganados restando el primer servicio por el jugador 1
+- % 1st Serve Return Won 2: Porcentaje de puntos ganados restando el primer servicio por el jugador 2	
+- % 2nd Serve Return Won 1: Porcentaje de puntos ganados restando el segundo servicio por el jugador 1
+- % 2nd Serve Return Won 2: Porcentaje de puntos ganados restando el segundo servicio por el jugador 2
+- % Break Point Converted 1: Porcentaje de puntos de break convertidos por el jugador 1
+- % Break Point Converted 2: Porcentaje de puntos de break convertidos por el jugador 2
+- Return Games Played 1: Número de juegos en los que ha restado el jugador 1
+- Return Games Played 2: Número de juegos en los que ha restado el jugador 2
+- % Served Point Won 1: Porcentaje de puntos ganados con su servicio para el jugador 1
+- % Served Point Won 2: Porcentaje de puntos ganados con su servicio para el jugador 2
+- % Return Point Won 1: Porcentaje de puntos ganados con su resto para el jugador 1
+- % Return Point Won 2: Porcentaje de puntos ganados con su resto para el jugador 2
+- % Total Point Won 1: Porcentaje total de puntos ganados por el jugador 1
+- % Total Point Won 2: Porcentaje total de puntos ganados por el jugador 2
+- Winner: Nombre del ganador del partido
+- Tournament: Nombre del torneo
+- Started date: Fecha de inicio del torneo
+- Ended date: Fecha de fin del torneo
+- Surface: Superficie del torneo
+
+La extracción de estos datos tiene como objetivo crear un almacén de datos con el que realizar un estudio estadístico y construir un modelo de clasificación que permita predecir el ganador de nuevos partidos o torneos.
+
+## 2. Integración y selección de los datos de interés a analizar
+
+En primer lugar realizamos la carga del dataset ATPStatistics y mostramos sus primeras lineas para revisar que se ha realizado correctamente.
+
 ```{r chunck1}
 library(readxl)
 ATPstatistics <- read_excel("../Data/ATPstatistics.xlsx")
 head(ATPstatistics)
 ```
-Una vez que hemos realizado la carga correcta de los datos. A continuaci?n, veremos el tipo de datos seleccionado por R para cada campo.
+
+Una vez cargado el set de datos procedemos a realizar un estudio de la estructura de los diferentes atributos para ver que tipo le ha asignado R a cada uno de ellos.
+
 ```{r chunck2}
 str(ATPstatistics)
 ```
-Player a factor
-Serve Rating a entero
-Aces a entero
-DF a entero
-% primer servicio a real
-% segundo servicio a real
-% primer servicio ganado a real
-% segundo servicio ganado a real
-% BP salvado a real
-N?mero de juegos servidos a entero
-Ratio resto a entero
-% primer servicio restado ganado a real
-% segundo servicio restado ganado a real
-% BP convertido a real
-N?mero de juegos al resto a entero
-% puntos ganados con el servicio a real
-% puntos ganados con el resto a real
-% total de puntos ganados a real
-Ganado a factor
-Torneo a factor
-Fecha_inicio a fecha
-Fecha_fin a fecha
-Surface a factor
+
+Como podemos observar, R no ha asignado el tipo de dato correcto o más adeacudo a los atributos. Por lo tanto, a continuación realizaremos una conversión del tipo de dato para cada uno de los atributos. También aprovechamos para transformar los datos que indican un porcentaje. Por último volvemos a mostrar la estructura del set de datos para observar los cambios realizados en los atributos.
+
 ```{r chunck3}
+ATPstatistics$id_partido<-as.integer(ATPstatistics$id_partido)
 ATPstatistics$`Player 1`<-as.factor(ATPstatistics$`Player 1`)
 ATPstatistics$`Player 2`<-as.factor(ATPstatistics$`Player 2`)
 ATPstatistics$`Serve Rating 1` <- as.integer(ATPstatistics$`Serve Rating 1`)
@@ -57,12 +107,12 @@ ATPstatistics$`Aces 1`<- as.integer(ATPstatistics$`Aces 1`)
 ATPstatistics$`Aces 2`<- as.integer(ATPstatistics$`Aces 2`)
 ATPstatistics$`Double Faults 1` <- as.integer(ATPstatistics$`Double Faults 1`)
 ATPstatistics$`Double Faults 2` <- as.integer(ATPstatistics$`Double Faults 2`)
-ATPstatistics$`Served games played 1` <- as.integer(ATPstatistics$`Served games played 1`)
-ATPstatistics$`Served games played 2` <- as.integer(ATPstatistics$`Served games played 2`)
-ATPstatistics$`Return rating 1` <- as.integer(ATPstatistics$`Return rating 1`)
-ATPstatistics$`Return rating 2` <- as.integer(ATPstatistics$`Return rating 2`)
-ATPstatistics$`Return games played 1` <- as.integer(ATPstatistics$`Return games played 1`)
-ATPstatistics$`Return games played 2` <- as.integer(ATPstatistics$`Return games played 2`)
+ATPstatistics$`Served Games Played 1` <- as.integer(ATPstatistics$`Served Games Played 1`)
+ATPstatistics$`Served Games Played 2` <- as.integer(ATPstatistics$`Served Games Played 2`)
+ATPstatistics$`Return Rating 1` <- as.integer(ATPstatistics$`Return Rating 1`)
+ATPstatistics$`Return Rating 2` <- as.integer(ATPstatistics$`Return Rating 2`)
+ATPstatistics$`Return Games Played 1` <- as.integer(ATPstatistics$`Return Games Played 1`)
+ATPstatistics$`Return Games Played 2` <- as.integer(ATPstatistics$`Return Games Played 2`)
 ATPstatistics$Winner <- as.factor(ATPstatistics$Winner)
 ATPstatistics$Tournament <- as.factor(ATPstatistics$Tournament)
 ATPstatistics$`Started date` <- as.Date(as.character(ATPstatistics$`Started date`), "%d/%m/%Y")
@@ -70,51 +120,305 @@ ATPstatistics$`Ended date` <- as.Date(as.character(ATPstatistics$`Ended date`), 
 ATPstatistics$Surface <- as.factor(ATPstatistics$Surface)
 ATPstatistics$`% 1st Serve 1` <- as.double(ATPstatistics$`% 1st Serve 1`)/100
 ATPstatistics$`% 1st Serve 2` <- as.double(ATPstatistics$`% 1st Serve 2`)/100
-ATPstatistics$`% 1st serve won 1` <-as.double(ATPstatistics$`% 1st serve won 1`)/100
-ATPstatistics$`% 1st serve won 2` <-as.double(ATPstatistics$`% 1st serve won 2`)/100
-ATPstatistics$`% 2nd serve won 1` <-as.double(ATPstatistics$`% 2nd serve won 1`)/100
-ATPstatistics$`% 2nd serve won 2` <-as.double(ATPstatistics$`% 2nd serve won 2`)/100
-ATPstatistics$`% Break point saved 1` <- as.double(ATPstatistics$`% Break point saved 1`)/100
-ATPstatistics$`% Break point saved 2` <- as.double(ATPstatistics$`% Break point saved 2`)/100
-ATPstatistics$`% Served point won 1` <- as.double(ATPstatistics$`% Served point won 1`)/100
-ATPstatistics$`% Served point won 2` <- as.double(ATPstatistics$`% Served point won 2`)/100
-ATPstatistics$`% Return point won 1` <- as.double(ATPstatistics$`% Return point won 1`)/100
-ATPstatistics$`% Return point won 2` <- as.double(ATPstatistics$`% Return point won 2`)/100
-ATPstatistics$`% Total point won 1` <- as.double(ATPstatistics$`% Total point won 1`)/100
-ATPstatistics$`% Total point won 2` <- as.double(ATPstatistics$`% Total point won 2`)/100
-ATPstatistics$`% 1st serve return won 1` <- as.double(ATPstatistics$`% 1st serve return won 1`)/100
-ATPstatistics$`% 1st serve return won 2` <- as.double(ATPstatistics$`% 1st serve return won 2` )
-ATPstatistics$`% 2nd serve return won 1`<- as.double(ATPstatistics$`% 2nd serve return won 1`)
-ATPstatistics$`% 2nd serve return won 2`<- as.double(ATPstatistics$`% 2nd serve return won 2`)
-ATPstatistics$`% Break point converted 1`<- as.double(ATPstatistics$`% Break point converted 1`)
-ATPstatistics$`% Break point converted 2`<- as.double(ATPstatistics$`% Break point converted 2`)
+ATPstatistics$`% 1st Serve Won 1` <-as.double(ATPstatistics$`% 1st Serve Won 1`)/100
+ATPstatistics$`% 1st Serve Won 2` <-as.double(ATPstatistics$`% 1st Serve Won 2`)/100
+ATPstatistics$`% 2nd Serve Won 1` <-as.double(ATPstatistics$`% 2nd Serve Won 1`)/100
+ATPstatistics$`% 2nd Serve Won 2` <-as.double(ATPstatistics$`% 2nd Serve Won 2`)/100
+ATPstatistics$`% Break Point Saved 1` <- as.double(ATPstatistics$`% Break Point Saved 1`)/100
+ATPstatistics$`% Break Point Saved 2` <- as.double(ATPstatistics$`% Break Point Saved 2`)/100
+ATPstatistics$`% Served Point Won 1` <- as.double(ATPstatistics$`% Served Point Won 1`)/100
+ATPstatistics$`% Served Point Won 2` <- as.double(ATPstatistics$`% Served Point Won 2`)/100
+ATPstatistics$`% Return Point Won 1` <- as.double(ATPstatistics$`% Return Point Won 1`)/100
+ATPstatistics$`% Return Point Won 2` <- as.double(ATPstatistics$`% Return Point Won 2`)/100
+ATPstatistics$`% Total Point Won 1` <- as.double(ATPstatistics$`% Total Point Won 1`)/100
+ATPstatistics$`% Total Point Won 2` <- as.double(ATPstatistics$`% Total Point Won 2`)/100
+ATPstatistics$`% 1st Serve Return Won 1` <- as.double(ATPstatistics$`% 1st Serve Return Won 1`)/100
+ATPstatistics$`% 1st Serve Return Won 2` <- as.double(ATPstatistics$`% 1st Serve Return Won 2` )/100
+ATPstatistics$`% 2nd Serve Return Won 1`<- as.double(ATPstatistics$`% 2nd Serve Return Won 1`)/100
+ATPstatistics$`% 2nd Serve Return Won 2`<- as.double(ATPstatistics$`% 2nd Serve Return Won 2`)/100
+ATPstatistics$`% Break Point Converted 1`<- as.double(ATPstatistics$`% Break Point Converted 1`)/100
+ATPstatistics$`% Break Point Converted 2`<- as.double(ATPstatistics$`% Break Point Converted 2`)/100
 str(ATPstatistics)
 ```
-Quitaremos el n?mero total de juegos al servicio y al resto, ya que a priori, no nos aporta informaci?n relativa al juego de cada jugador. 
-```{r chunck4}
-ATPstatistics<-ATPstatistics[-c(17:18)]
-ATPstatistics<-ATPstatistics[-c(25:26)]
-```
-##Limpieza de los datos.
 
-###?Los datos contienen ceros o elementos vac?os? ?C?mo gestionar?as cada uno de estos casos?
+## 3. Limpieza de los datos.
+
+### 3.1. Datos a cero o elementos vacíos
+
+El primer paso a realizar en la limpieza de datos es analizar si los atirbutos contienen datos nulos o vacíos. Para ello haremos uso de la función summary de R.
+
 ```{r chunck5}
 summary(ATPstatistics)
 ```
-Existen observaciones con datos a cero, lo que denota que dichas observaciones no se han recogido datos para el partido. Estos datos deben ser eliminados.
+
+Como podemos obaservar, no tenemos atributos con datos 'NA' pero sí con datos a cero. Algunos de estos atributos no pueden ser 0 y si lo son es por que no se han recogido datos para ese partido, por ejemplo 'Served Games Played'. Estas observaciones carecen de interés estadístico y debemos eliminarlas para que no alteren los modelos que construyamos a partir de los datos.
+
+Hemos comprobado en el dataset que las observaciones que contienen ceros en los atributos 'Served games played' y 'Return games played' son observaciones con todos los datos vacíos, por lo que procedemos a borrarlas.
+
 ```{r chunck6}
-
+ATPstatistics<- ATPstatistics[which(ATPstatistics$`Served Games Played 1`!=0 & ATPstatistics$`Served Games Played 2`!=0 & ATPstatistics$`Return Games Played 1` !=0 & ATPstatistics$`Return Games Played 1` !=0),]
 ```
-### Identificaci?n y tratamiento de valores extremos.
-## An?lisis de los datos.
-###Selecci?n de los grupos de datos que se quieren analizar/comparar(planificaci?n de los an?lisis a aplicar).
-### Comprobaci?n de la normalidad y homogeneidad de la varianza.
-### Aplicaci?n de pruebas estad?sticas para comparar los grupos de datos. En funci?n de los datos y el objetivo del estudio, aplicar pruebas de contrastede hip?tesis, correlaciones, regresiones, etc.
-## Representaci?n de los resultados a partir de tablas y gr?ficas.
-##Resoluci?n del problema. A partir de los resultados obtenidos, ?cu?les son las conclusiones? ?Los resultados permiten responder al problema?
-## C?digo: Hay que adjuntar el c?digo, preferiblemente en R, con el que se ha realizado la limpieza, an?lisis y representaci?n de los datos. Si lo prefer?s,
-tambi?n pod?is trabajar en Python. 
 
+### 3.2 Identificación y tratamiento de valores extremos
 
-Hemos obtenido un $R^2$ con valor 0.7958, por lo que nuestro modelo est? cerca de ajustarse a la totalidad, ya que el valor m?ximo de $R^2$ es 1.
+El segundo paso en la tarea de limpiar los datos es identificar y tratar los valores extrremos. Para ver fácilmente si los atributos del dataset cuentan con valores extremos, haremos uso de diagramas de caja. En el caso de los atributos contengan valores extremos, estos estarán representados por un círculo.
 
+```{r chunck8}
+boxplot(ATPstatistics$`Serve Rating 1`,notch=TRUE, main= ("Serve Rating player 1"))
+boxplot(ATPstatistics$`Serve Rating 2`,notch=TRUE, main= ("Serve Rating player 2"))
+boxplot(ATPstatistics$`Aces 1`,notch=TRUE, main= ("Aces player 1"))
+boxplot(ATPstatistics$`Aces 2`,notch=TRUE, main= ("Aces player 2"))
+boxplot(ATPstatistics$`Double Faults 1`,notch=TRUE, main= ("Double Faults player 1"))
+boxplot(ATPstatistics$`Double Faults 2`,notch=TRUE, main= ("Double Faults player 2"))
+boxplot(ATPstatistics$`Return Rating 1`,notch=TRUE, main= ("Return rating player 1"))
+boxplot(ATPstatistics$`Return Rating 2`,notch=TRUE, main= ("Return rating player 2"))
+boxplot(ATPstatistics$`% 1st Serve 1`,notch=TRUE, main= ("% 1st Serve player 1"))
+boxplot(ATPstatistics$`% 1st Serve 2`,notch=TRUE, main= ("% 1st Serve player 2"))
+boxplot(ATPstatistics$`% 1st Serve Won 1`,notch=TRUE, main= ("% 1st Serve Won player 1"))
+boxplot(ATPstatistics$`% 1st Serve Won 2`,notch=TRUE, main= ("% 1st Serve Won player 2"))
+boxplot(ATPstatistics$`% 2nd Serve Won 1`,notch=TRUE, main= ("% 2nd Serve Won player 1"))
+boxplot(ATPstatistics$`% 2nd Serve Won 2`,notch=TRUE, main= ("% 2nd Serve Won player 2"))
+boxplot(ATPstatistics$`% Break Point Saved 1`,notch=TRUE, main= ("% Break point saved player 1"))
+boxplot(ATPstatistics$`% Break Point Saved 2`,notch=TRUE, main= ("% Break poiint saved player 2"))
+boxplot(ATPstatistics$`% 1st Serve Return Won 1`,notch=TRUE, main= ("% 1st Serve Return Won player 1"))
+boxplot(ATPstatistics$`% 1st Serve Return Won 2`,notch=TRUE, main= ("% 1st Serve Return Won player 2"))
+boxplot(ATPstatistics$`% 2nd Serve Return Won 1`,notch=TRUE, main= ("% 2nd Serve Return Won player 1"))
+boxplot(ATPstatistics$`% 2nd Serve Return Won 2`,notch=TRUE, main= ("% 2nd Serve Return Won player 2"))
+boxplot(ATPstatistics$`% Served Point Won 1`,notch=TRUE, main= ("% Served Point Won player 1"))
+boxplot(ATPstatistics$`% Served Point Won 2`,notch=TRUE, main= ("% Served Point Won player 2"))
+boxplot(ATPstatistics$`% Return Point Won 1`,notch=TRUE, main= ("% Return Point Won player 1"))
+boxplot(ATPstatistics$`% Return Point Won 2`,notch=TRUE, main= ("% Return Point Won player 2"))
+boxplot(ATPstatistics$`% Total Point Won 1`,notch=TRUE, main= ("Total Point Won player 1"))
+boxplot(ATPstatistics$`% Total Point Won 2`,notch=TRUE, main= ("Total Point Won player 2"))
+```
+
+Como podemos observar en los diagramas de caja, existen bastantes valores extremos. No obstante nosotros hemos decidido mantener estos valores ya que, las estadísticas de los jugadores no tienen por que seguir una distribución normal, dentro del mismo torneo puede haber jugadores con un rendimiento muy alto por encima de la media, como por ejemplo Roger Federer y Rafael Nadal y otros que tengan un rendimiento muy bajo.
+
+Por ejemplo, si analizamos los datos del atributo 'Serve Rating 1' que contiene la puntuación oficial de la ATP para el servicio del jugador 1, observamos los siguientes outliers.
+
+```{r chunck4.1}
+boxplot.stats(ATPstatistics$`Serve Rating 1`)$out
+```
+
+Para ver si estos datos son correctos, vamos a buscar el máximo de todos los outliers y averiguamos a qué partido corresponde para analizar los datos.
+
+```{r chunck4.2}
+max(boxplot.stats(ATPstatistics$`Serve Rating 1`)$out)
+ATPstatistics[ATPstatistics$`Serve Rating 1` == max(boxplot.stats(ATPstatistics$`Serve Rating 1`)$out),c(2:3, 36:39)]
+```
+
+Este partido pasó a la hitoria con varios records, entre ellos, el partido con más juegos de la historia, el de mayor duración, el de mayor puntuación y el partido con más ACEs. Adjuntamos un enlace con el detalle de este partido: https://es.wikipedia.org/wiki/Partido_Isner-Mahut_de_Wimbledon_2010
+
+Al ser una fuente de datos oficial y referente en cuanto a las estadísticas de los torneos, es muy improbable que siendo revisados por un gran número de gente, exitan datos erroneos que no hayan sido reportados y corregidos.
+
+## 4. Transformación de los datos
+
+### 4.1 Normalización
+
+En este apartado vamos a proceder a normalizar los datos. Esta transformación de los datos es algo fundamental como paso previo a utilizar los datos con algoritmos de aprendizaje automático. Los datos deben tener el mismo valor, por lo que lo suyo es que las variables numéricas deben de estar todas bajo el mismo rango, normalmente entre 0 y 1. 
+
+Tomamos cada atributo y lo dividimos entre su máximo, de esta forma obtenemos el rango deseado.
+
+```{r chunck9.2}
+ATPstatistics[,4]<-ATPstatistics[,4]/max(ATPstatistics[,4])
+ATPstatistics[,5]<-ATPstatistics[,5]/max(ATPstatistics[,5])
+ATPstatistics[,6]<-ATPstatistics[,6]/max(ATPstatistics[,6])
+ATPstatistics[,7]<-ATPstatistics[,7]/max(ATPstatistics[,7])
+ATPstatistics[,8]<-ATPstatistics[,8]/max(ATPstatistics[,8])
+ATPstatistics[,9]<-ATPstatistics[,9]/max(ATPstatistics[,9])
+ATPstatistics[,20]<-ATPstatistics[,20]/max(ATPstatistics[,20])
+ATPstatistics[,21]<-ATPstatistics[,21]/max(ATPstatistics[,21])
+summary(ATPstatistics[,c(4:8,20:21)])
+```
+
+## 5. Análisis de los datos
+
+### 5.1. Selección de datos a analizar / comparar
+
+Antes de realizar el análisis de los datos, debemos seleccionar del dataset aquellos atribrutos que nos parezcan relevantes para construir nuestro modelo. Nosotros hemos decidido eliminar del dataset los atributos con el número total de juegos al servicio y al restoya que, a priori, no nos aportan información relevante sobre el rendimiento de cada jugador.
+
+```{r chunck4}
+ATPstatistics<-ATPstatistics[-c(18:19)]
+ATPstatistics<-ATPstatistics[-c(26:27)]
+```
+
+### 5.2. Comprobación de la normalidad de los datos
+
+Comprobamos la normalidad de los datos mediante la función qqnorm y shapiro.test.
+
+```{r chunck9.1}
+for (i in c(4:31)){
+  qqnorm(t(ATPstatistics[,i]), main = colnames(ATPstatistics[,i]))
+  qqline(t(ATPstatistics[,i]), col='red')
+  print(shapiro.test(t(ATPstatistics[1:5000,i])))
+}
+```
+
+Como podemos observar en las gráficas y en el resultado del test shapiro, salvo el atrituto 'Serve Rating 1', el resto tiene un Pvalue < 0.05 por lo que rechazamos le hipótesis nula y tomamos la aternativa; ninguno de estos atributos sigue una distribución normal. 
+
+### 5.3. Modelo de clasificación y predicción a partir de los datos
+
+Vamos a proceder a crear un modelo de clasificación con el objetivo de predecir el ganador de nuevos partidos o torneos. Para ello, vamos a dividir el dataset en un grupo de entrenamiento y otro de test.
+
+Utilizaremos el set de entrenamiento para entrenar un de machine learning basado en redes neuronales. Después, utilizaremos el dataset de test para validar este modelo.
+
+En este punto, disponemos de un dataset que contiene todos los registro de los partidos desde 2010 a la actulidad. A largo de la práctica, hemos seleccionado, limpiado y transformado estos datos. Pero para poder predecir el restultado de un encuentro futuro, necesitamos basarnos en los datos de rendimiento de un jugador en los n partidos anteriores. Por lo tanto, vamos a proceder a crear un nuevo dataset que contendrá én cada registro la media y la varianza de cada una de las estadísicas de cada jugador para los últimos 5 partidos y el resultado del partido que disputó. 
+
+Para entender esto mejor, vamos a tomar como ejemplo el último partido disputado entre Rafael Nadal y Roger Fededer. Las estadisticas de ese partido fueron las siguientes:
+
+```{r chunck7_1}
+ATPstatistics[(ATPstatistics$`Player 1` == "Rafael Nadal" | ATPstatistics$`Player 2` == "Rafael Nadal") & (ATPstatistics$`Player 1`=="Roger Federer" | ATPstatistics$`Player 2` == "Roger Federer"),][1,]
+```
+
+La estimación para este partido sería la siguiente:
+
+```{r chunck 7_2}
+require(data.table)
+variablesj1 <- c(1,seq(4,31,by = 2))
+variablesj2 <- c(1,seq(5,32,by = 2))
+otras_variables <- seq(33,ncol(ATPstatistics),by = 1)
+resultado <- matrix(nrow=0,ncol=63)
+partidos = 5
+jugador1<-"Roger Federer"
+jugador2<-"Rafael Nadal"
+id_partido <- ATPstatistics[(ATPstatistics$`Player 1` == "Rafael Nadal" | ATPstatistics$`Player 2` == "Rafael Nadal") & (ATPstatistics$`Player 1`=="Roger Federer" | ATPstatistics$`Player 2` == "Roger Federer"),][1,1]
+estadisticas_jugador1_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador1),variablesj1]
+estadisticas_jugador1_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador1),variablesj2]
+estadisticas_jugador2_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador2),variablesj1]
+estadisticas_jugador2_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador2),variablesj2] 
+estadisticas_jugador1 <- rbind(as.matrix(estadisticas_jugador1_1),as.matrix(estadisticas_jugador1_2))
+estadisticas_jugador2 <- rbind(as.matrix(estadisticas_jugador2_2),as.matrix(estadisticas_jugador2_1))
+estadisticas_jugador1<-data.table(estadisticas_jugador1,key="id_partido")
+estadisticas_jugador2<-data.table(estadisticas_jugador2,key="id_partido")
+estadisticas_jugador1 <- estadisticas_jugador1[(which(estadisticas_jugador1$id_partido > id_partido[1])),2:ncol(estadisticas_jugador1)]
+estadisticas_jugador2 <- estadisticas_jugador2[(which(estadisticas_jugador2$id_partido > id_partido[1])),2:ncol(estadisticas_jugador2)]
+estadisticas_jugador1 <- estadisticas_jugador1[1:partidos,]
+estadisticas_jugador2 <- estadisticas_jugador2[1:partidos,]
+estadisticas_jugador1 <- cbind(t(colMeans(estadisticas_jugador1)),t(apply(estadisticas_jugador1,2,sd)))
+estadisticas_jugador2 <- cbind(t(colMeans(estadisticas_jugador2)),t(apply(estadisticas_jugador2,2,sd)))
+resultado <- cbind(id_partido,jugador1,jugador2,estadisticas_jugador1,estadisticas_jugador2,ATPstatistics[ATPstatistics$id_partido==2018,"Winner"],ATPstatistics[(ATPstatistics$`Player 1` == "Rafael Nadal" | ATPstatistics$`Player 2` == "Rafael Nadal") & (ATPstatistics$`Player 1`=="Roger Federer" | ATPstatistics$`Player 2` == "Roger Federer"),][1,otras_variables])
+resultado
+```
+
+Ahora vamos a proceder a realizar la estimación de todos los partidos. El resultado se almaceneará en el fichero "dataset.csv".
+
+```{r chunck7}
+partidos = 5
+variablesj1 <- c(1,seq(4,31,by = 2))
+variablesj2 <- c(1,seq(5,32,by = 2))
+otras_variables <- seq(33,ncol(ATPstatistics),by = 1)
+jugador1<-as.character(ATPstatistics$`Player 1`)
+jugador2<-as.character(ATPstatistics$`Player 2`)
+for(i in 1:nrow(ATPstatistics)){
+  resultado <- matrix(nrow=0,ncol=63)
+  estadisticas_jugador1_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador1[i]),variablesj1]
+  estadisticas_jugador1_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador1[i]),variablesj2]
+  estadisticas_jugador2_1 <-ATPstatistics[which(ATPstatistics$`Player 1`==jugador2[i]),variablesj1]
+  estadisticas_jugador2_2 <-ATPstatistics[which(ATPstatistics$`Player 2`==jugador2[i]),variablesj2] 
+  estadisticas_jugador1 <- rbind(as.matrix(estadisticas_jugador1_1),as.matrix(estadisticas_jugador1_2))
+  estadisticas_jugador2 <- rbind(as.matrix(estadisticas_jugador2_2),as.matrix(estadisticas_jugador2_1))
+  estadisticas_jugador1<-data.table(estadisticas_jugador1,key="id_partido")
+  estadisticas_jugador2<-data.table(estadisticas_jugador2,key="id_partido")
+  estadisticas_jugador1 <- estadisticas_jugador1[estadisticas_jugador1$id_partido >ATPstatistics$id_partido[i],2:ncol(estadisticas_jugador1)]
+  estadisticas_jugador2 <- estadisticas_jugador2[estadisticas_jugador2$id_partido > ATPstatistics$id_partido[i],2:ncol(estadisticas_jugador2)]
+  if(nrow(estadisticas_jugador1)>= partidos & nrow(estadisticas_jugador2)>= partidos){
+    estadisticas_jugador1 <- estadisticas_jugador1[1:partidos,]
+    estadisticas_jugador2 <- estadisticas_jugador2[1:partidos,] 
+    estadisticas_jugador1 <- cbind(t(colMeans(estadisticas_jugador1)),t(apply(estadisticas_jugador1,2,sd)))
+    estadisticas_jugador2 <- cbind(t(colMeans(estadisticas_jugador2)),t(apply(estadisticas_jugador2,2,sd)))
+    if(i%%2 == 1){
+      if(ATPstatistics$Winner[i]==jugador1[i])
+        ganador = -1
+      else
+        ganador = 1
+      resultado <- cbind(ATPstatistics$id_partido[i],jugador1[i],jugador2[i],estadisticas_jugador1,estadisticas_jugador2,ganador,ATPstatistics[i,otras_variables])
+    }
+    else{
+      if(ATPstatistics$Winner[i]==jugador1[i])
+        ganador = 1
+      else
+        ganador = -1
+      resultado <- cbind(ATPstatistics$id_partido[i],jugador2[i],jugador1[i],estadisticas_jugador2,estadisticas_jugador1,ganador,ATPstatistics[i,otras_variables])
+    }
+    if(i == 1){
+      dataset <- data.frame(resultado)
+      colnames(dataset)<-colnames(resultado)
+    }
+    else
+      dataset <- rbind((dataset),(resultado))
+  }
+}
+#Fomateo de dataset
+#dataframe <- as.data.frame()
+#dataset <- as.data.frame(dataset)
+colnames(dataset)[1:3]<-c("id_partido","Jugador 1","Jugador 2")
+colnames(dataset)[4:17]<-paste("Media",colnames(dataset)[4:17])
+colnames(dataset)[18:31]<-paste("Varianza",colnames(dataset)[18:31])
+colnames(dataset)[32:45]<-paste("Media",colnames(dataset)[32:45])
+colnames(dataset)[46:59]<-paste("Varianza",colnames(dataset)[46:59])
+colnames(dataset)<-gsub(" ","_",colnames(dataset))
+colnames(dataset)<-gsub("%","Pct", colnames(dataset))
+dataset[,1]<-as.integer(dataset[,1])
+for(i in 4:59)
+  dataset[,i] <- as.double(dataset[,i])
+dataset[,60]<-as.integer(dataset[,60])
+#write.csv(dataset, "./Data/dataset.csv")
+```
+
+Una vez generado el dataset con las estimaciones, procedemos a generar el modelo y a validar su exactitud.
+
+```{r chunck 7_3}
+#dataset <- read.csv("./Data/dataset.csv")
+#dataset <- dataset[,-1]
+dataset_aux <- sample(1:nrow(dataset),7500)
+index <- sample(1:7500,round(0.8*7500))
+entrenamiento <- dataset[index,4:60]
+test <- dataset[dataset_aux[-index],4:60]
+nms<-colnames(dataset)[4:60]
+
+#frml <- as.formula(paste("ganador ~", paste(nms[!nms %in% "ganador"], collapse = " + ")))
+
+# Modelo con nnet
+library("nnet")
+NN = nnet(entrenamiento[,1:56],entrenamiento[,57],size = length(nms)/2, rang = 0.01, maxit=1000, decay = 0.0001, MaxNWts = 100000, linout=T, trace = F)
+```
+
+## 6. Representación gráfica de los datos
+
+Revisamos la calidad del modelo que hemos generado mediante una matriz de confusión en la que se comparan los valores predichos por el modelo y los valores reales.
+
+```{r chunck12}
+library(caret)
+
+# Exatitud con el set de entrenamiento
+salida_entrenamiento <- NN$fitted.values
+for(i in 1:length(salida_entrenamiento)){
+  if(salida_entrenamiento[i] < 0)
+    salida_entrenamiento[i] = -1
+  else
+    salida_entrenamiento[i] = 1
+}
+salida_entrenamiento<-as.factor(salida_entrenamiento)
+entrenamiento[,57]<-as.factor(entrenamiento[,57])
+confusionMatrix(data = salida_entrenamiento, entrenamiento[,57])
+
+# Exatitud con el set de test
+salida_test <- predict(NN, test[,1:56])
+for(i in 1:length(salida_test)){
+  if(salida_test[i] < 0)
+    salida_test[i] = -1
+  else
+    salida_test[i] = 1
+}
+salida_test<-as.factor(salida_test)
+test[,57]<-as.factor(test[,57])
+confusionMatrix(data = salida_test, test[,57])
+```
+
+## 7. Resolución del problema
+
+Nuestro objetivo era construir un modelo de clasificación que permitiera predecir el ganador de nuevos partidos o torneos.
+
+Si revisamos los datos que hemos obtenido sobre la validación del modelo que hemos creado, podemos observar que la exactitud con el set de test no es alta (~60%). Sin embargo, para ser un primer modelo no está nada mal. El modelo generado y su validación nos permite replantearnos los datos que usamos de ingesta, cómo los calculamos, los parámetros que habría que modificar para optimizar el modelo,  usar otros algoritmos de clasificación (árboles de decisión, kNN), etc.
+
+Por ejemplo, en este primer modelo sólo hemos tenido en cuenta las estadísticas de los 5 partidos anteriores de cada jugador. Podríamos considerar aumentar el número de partidos, incluir información adicional cruzando los datos con datos de meteorología, datos físicos de los tenistas, tipo de superficie, etc. Y con estos cambios volver a generar un modelo y revisar su bondad.
