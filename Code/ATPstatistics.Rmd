@@ -325,16 +325,16 @@ for(i in 1:nrow(ATPstatistics)){
     estadisticas_jugador2 <- cbind(t(colMeans(estadisticas_jugador2)),t(apply(estadisticas_jugador2,2,sd)))
     if(i%%2 == 1){
       if(ATPstatistics$Winner[i]==jugador1[i])
-        ganador = 1
+        ganador = -1
       else
-        ganador = 2
+        ganador = 1
       resultado <- cbind(ATPstatistics$id_partido[i],jugador1[i],jugador2[i],estadisticas_jugador1,estadisticas_jugador2,ganador,ATPstatistics[i,otras_variables])
     }
     else{
       if(ATPstatistics$Winner[i]==jugador1[i])
-        ganador = 2
-      else
         ganador = 1
+      else
+        ganador = -1
       resultado <- cbind(ATPstatistics$id_partido[i],jugador2[i],jugador1[i],estadisticas_jugador2,estadisticas_jugador1,ganador,ATPstatistics[i,otras_variables])
     }
     if(i == 1){
@@ -365,18 +365,34 @@ dataset[,60]<-as.integer(dataset[,60])
 Generamos los modelos y se validarán mediante validación cruzada con k = 10.
 
 ```{r chunck 7_3}
+#dataset <- read.csv("./Data/dataset.csv")
 library("dismo")
-library("MASS")
+library("nnet")
 library("neuralnet")
-index <- sample(1:nrow(dataset), round(0.8*nrow(dataset)))
+dataset_aux <- sample(1:nrow(dataset),7500)
+index <- sample(1:7500,round(0.8*7500))
 entrenamiento <- dataset[index,4:60]
-test <- dataset[-index,4:60]
+test <- dataset[dataset_aux[-index],4:60]
 nms<-colnames(dataset)[4:60]
-#frml <- as.formula(paste("ganador~",paste(nms, collapse = "+"), sep = "",paste("", sep = "")))
 frml <- as.formula(paste("ganador ~", paste(nms[!nms %in% "ganador"], collapse = " + ")))
-#frml <- "ganador ~ Varianza_Serve_Rating_1"
-NN = neuralnet(frml,entrenamiento, hidden= c(as.integer(length(nms)/2),as.integer(length(nms)/4)), linear.output = TRUE)
-
+#NN = nnet(frml, size = length(nms)*2, data = entrenamiento, rang = 0.5, maxit=200, decay = 0, MaxNWts = 100000)
+NN = nnet(entrenamiento[,1:56],entrenamiento[,57],size = length(nms)*2,rang = 0.5, maxit=200, decay = 0, MaxNWts = 100000,linout=T)
+salida_entrenamiento <- NN$fitted.values
+for(i in 1:length(salida_entrenamiento)){
+  if(salida_entrenamiento[i] < 0)
+    salida_entrenamiento[i] = -1
+  else
+    salida_entrenamiento[i] = 1
+}
+table(entrenamiento[,57],salida_entrenamiento)
+salida_test <- predict(NN, test[,1:56])
+for(i in 1:length(salida_test)){
+  if(salida_test[i] < 0)
+    salida_test[i] = -1
+  else
+    salida_test[i] = 1
+}
+table(test[,57], salida_test)
 ```
 
 ## 6. Representación gráfica de los datos
@@ -389,17 +405,3 @@ Representación de los resultados a partir de tablas y gráficas.
 
 ## 7. Resolución del problema
 
-A partir de los resultados obtenidos, ?cu?les son las conclusiones? ?Los resultados permiten responder al problema?
-
-Para poder responder a la pregunta que nos planteabamos al inicio, dado que los datos no están del todo preparados, ya que tenemos las estadisticas reales de los partidos. Necesitamos obtener las estimaciones de los partidos, para ello, realizaremos la media y varianza de las estadisticas de los últimos partidos de cada jugador.
-
-
-
-Una vez tenemos generado el dataset, procedemos a realizar un kfold de 10 y procedemos a entrenar los diferentes modelos.
-
-```{r chunck10}
-
-
-```
-
-Como podemos ver en en los resultados de los diferentes modelos obtenemos un acierto de X en test, por lo que afirmamos que con los datos que hemos obtenido podemos realizar predicciones de los partidos futuros. 
