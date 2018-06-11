@@ -15,9 +15,7 @@ output:
 
 ## 1. Descripción del dataset
 
-Por qué es importante y qué pregunta/problema pretende responder.
-
-La ATP organiza diferentes torneos en una misma temporada, que abarca de Enero a Noviembre. Los torneos se clasifican según la puntuación que el ganador recibe en cada uno de ellos:
+La Asociación de Tenistas Profesionales (ATP) organiza diferentes torneos en una misma temporada, que abarca de Enero a Noviembre. Los torneos se clasifican según la puntuación que el ganador recibe en cada uno de ellos:
 
 - ATP 250
 - ATP 500
@@ -153,7 +151,7 @@ summary(ATPstatistics)
 
 Como podemos obaservar, no tenemos atributos con datos 'NA' pero sí con datos a cero. Algunos de estos atributos no pueden ser 0 y si lo son es por que no se han recogido datos para ese partido, por ejemplo 'Served Games Played'. Estas observaciones carecen de interés estadístico y debemos eliminarlas para que no alteren los modelos que construyamos a partir de los datos.
 
-Hemos comprobado en el dataset que las observaciones que contienen los atributos 'Served games played' y 'Return games played' son observaciones con todos los datos vacíos, por lo que procedemos a borrarlas.
+Hemos comprobado en el dataset que las observaciones que contienen ceros en los atributos 'Served games played' y 'Return games played' son observaciones con todos los datos vacíos, por lo que procedemos a borrarlas.
 
 ```{r chunck6}
 ATPstatistics<- ATPstatistics[which(ATPstatistics$`Served Games Played 1`!=0 & ATPstatistics$`Served Games Played 2`!=0 & ATPstatistics$`Return Games Played 1` !=0 & ATPstatistics$`Return Games Played 1` !=0),]
@@ -161,7 +159,7 @@ ATPstatistics<- ATPstatistics[which(ATPstatistics$`Served Games Played 1`!=0 & A
 
 ### 3.2 Identificación y tratamiento de valores extremos
 
-El segundo paso en la tarea de limpiar los datos es identificar y tratar los valores extrremos. Para ver fácilmente si los atributos del dataset cuentan con valores extremos, haremos uso de unos diagramas de caja. En el caso de los atributos contengan valores extremos, estos estarán representados por un círculo.
+El segundo paso en la tarea de limpiar los datos es identificar y tratar los valores extrremos. Para ver fácilmente si los atributos del dataset cuentan con valores extremos, haremos uso de diagramas de caja. En el caso de los atributos contengan valores extremos, estos estarán representados por un círculo.
 
 ```{r chunck8}
 boxplot(ATPstatistics$`Serve Rating 1`,notch=TRUE, main= ("Serve Rating player 1"))
@@ -217,7 +215,7 @@ Al ser una fuente de datos oficial y referente en cuanto a las estadísticas de 
 
 En este apartado vamos a proceder a normalizar los datos. Esta transformación de los datos es algo fundamental como paso previo a utilizar los datos con algoritmos de aprendizaje automático. Los datos deben tener el mismo valor, por lo que lo suyo es que las variables numéricas deben de estar todas bajo el mismo rango, normalmente entre 0 y 1. 
 
-cogemos cada atributo y lo dividimos entre el máximo de cada atributo, de esta forma tendríamos el rango deseado.
+Tomamos cada atributo y lo dividimos entre su máximo, de esta forma obtenemos el rango deseado.
 
 ```{r chunck9.2}
 ATPstatistics[,4]<-ATPstatistics[,4]/max(ATPstatistics[,4])
@@ -235,7 +233,7 @@ summary(ATPstatistics[,c(4:8,20:21)])
 
 ### 5.1. Selección de datos a analizar / comparar
 
-De manera previa al análisis de los datos, debemos seleccionar del dataset aquellos atribrutos que nos parezcan relevantes para construir nuestro modelo. Nosotros hemos decidido eliminar del data set los atributos con el número total de juegos al servicio y al resto, ya que a priori, no nos aporta información relevante sobre el rendimiento de cada jugador.
+Antes de realizar el análisis de los datos, debemos seleccionar del dataset aquellos atribrutos que nos parezcan relevantes para construir nuestro modelo. Nosotros hemos decidido eliminar del dataset los atributos con el número total de juegos al servicio y al restoya que, a priori, no nos aportan información relevante sobre el rendimiento de cada jugador.
 
 ```{r chunck4}
 ATPstatistics<-ATPstatistics[-c(18:19)]
@@ -244,7 +242,7 @@ ATPstatistics<-ATPstatistics[-c(26:27)]
 
 ### 5.2. Comprobación de la normalidad de los datos
 
-Para llevar a cabo este proceso primero vamos a revisar si los atributos son candidatos a ser normalizados mediante la función qqnorm y shapiro.test.
+Comprobamos la normalidad de los datos mediante la función qqnorm y shapiro.test.
 
 ```{r chunck9.1}
 for (i in c(4:31)){
@@ -254,14 +252,17 @@ for (i in c(4:31)){
 }
 ```
 
-Como podemos observar mediante las gráficas y el resultado del test shapiro, salvo el atrituto 'Serve Rating 1', el resto indica que Pvalue < 0.05 por lo que rechazamos le hipótesis nula y tomamos la aternativo; ninguno de estos atributos sigue una distribución normal. 
+Como podemos observar en las gráficas y en el resultado del test shapiro, salvo el atrituto 'Serve Rating 1', el resto tiene un Pvalue < 0.05 por lo que rechazamos le hipótesis nula y tomamos la aternativa; ninguno de estos atributos sigue una distribución normal. 
 
 ### 5.3. Modelo de clasificación y predicción a partir de los datos
 
 Vamos a proceder a crear un modelo de clasificación con el objetivo de predecir el ganador de nuevos partidos o torneos. Para ello, vamos a dividir el dataset en un grupo de entrenamiento y otro de test.
-Utilizaremos el set de entrenamiento para entrenar diferentes modelos de machine learning como redes neuronales, arboles de decisión y algoritmos lazy (KNN). Después, utilizaremos el dataset de test para verficar la bondad del modelo.
 
-De momento disponemos de un dataset que contiene todos los registro de los partidos desde 2010 a la actulidad. A largo de la práctica, hemos seleccionado, limpiado y transformado dichos datos. Pero para poder predecir el restultado de un encuentro futuro, necesitamos basarnos en los datos de los partidos anteriores. Por lo tanto, vamos a proceder a crear un nuevo dataset que contendrá én cada registro la media y la varianza de cada una de las estadísicas de cada jugador para los últimos 5 partidos y el resultado del partido que disputó. Ponemos como ejemplo el último partido disputado entre Rafael Nadal y Roger Fededer. Las estadisticas de ese partido fueron las siguientes:
+Utilizaremos el set de entrenamiento para entrenar un de machine learning basado en redes neuronales. Después, utilizaremos el dataset de test para validar este modelo.
+
+En este punto, disponemos de un dataset que contiene todos los registro de los partidos desde 2010 a la actulidad. A largo de la práctica, hemos seleccionado, limpiado y transformado estos datos. Pero para poder predecir el restultado de un encuentro futuro, necesitamos basarnos en los datos de rendimiento de un jugador en los n partidos anteriores. Por lo tanto, vamos a proceder a crear un nuevo dataset que contendrá én cada registro la media y la varianza de cada una de las estadísicas de cada jugador para los últimos 5 partidos y el resultado del partido que disputó. 
+
+Para entender esto mejor, vamos a tomar como ejemplo el último partido disputado entre Rafael Nadal y Roger Fededer. Las estadisticas de ese partido fueron las siguientes:
 
 ```{r chunck7_1}
 ATPstatistics[(ATPstatistics$`Player 1` == "Rafael Nadal" | ATPstatistics$`Player 2` == "Rafael Nadal") & (ATPstatistics$`Player 1`=="Roger Federer" | ATPstatistics$`Player 2` == "Roger Federer"),][1,]
@@ -297,7 +298,7 @@ resultado <- cbind(id_partido,jugador1,jugador2,estadisticas_jugador1,estadistic
 resultado
 ```
 
-Procedemos a realizarlo para todos los partidos. Se almaceneará el resultado en el fichero "dataset.csv".
+Ahora vamos a proceder a realizar la estimación de todos los partidos. El resultado se almaceneará en el fichero "dataset.csv".
 
 ```{r chunck7}
 partidos = 5
@@ -362,7 +363,7 @@ dataset[,60]<-as.integer(dataset[,60])
 #write.csv(dataset, "./Data/dataset.csv")
 ```
 
-Generamos los modelos y se validarán mediante validación cruzada con k = 10.
+Una vez generado el dataset con las estimaciones, procedemos a generar el modelo y a validar su exactitud.
 
 ```{r chunck 7_3}
 #dataset <- read.csv("./Data/dataset.csv")
